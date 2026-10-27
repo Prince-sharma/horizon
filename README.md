@@ -3,7 +3,10 @@
 A clickable prototype of **Horizon** — an agent platform for teams that have to answer
 to an IT and security function.
 
-**Live:** https://prince-sharma.github.io/horizon/
+**Live**
+
+- Horizon — https://prince-sharma.github.io/horizon/
+- Mal Agents concept — https://prince-sharma.github.io/horizon/mal/
 
 ## What it demonstrates
 
@@ -36,6 +39,21 @@ Arrow keys step through it; `Esc` exits.
 - **Spend is a trust contract.** Budgets roll over, agents pause at their cap, and every
   step shows what it cost.
 - **Model-agnostic**, including bring-your-own-key.
+
+## Mal Agents concept (`/mal/`)
+
+A second prototype that applies the same thinking inside a specific product: an
+AI-native business account, where an agent does not ask a bank for permission —
+it holds the permission.
+
+The shift is that an agent here can move money, so the ordering inverts. Rooms
+are specialists (Treasury, Payments, Collections, Payroll, Taxes & VAT, FX), each
+publishing a **mandate**: what it can see, what it may do, what it may never do,
+its per-payment and per-day limits, and who signs above them. The builder makes
+you write the mandate before the instructions. The approval card — payees, total,
+largest single payment, fees, and the one supplier whose IBAN changed three days
+ago — is the centre of the product. The run trace and the statement are the same
+record.
 
 ## Running it
 
