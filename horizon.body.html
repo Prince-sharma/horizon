@@ -1,0 +1,974 @@
+<title>Horizon Agent Platform</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: sticky icon rail + nav sidebar + scrolling work surface; tour overlay spotlights real controls. */
+:root{
+  --bg:#f3f4f7; --surface:#ffffff; --surface-2:#e9ebf1; --surface-3:#f7f8fa;
+  --line:#d9dce4; --line-soft:#e7e9ef;
+  --fg:#15181f; --fg-2:#596071; --fg-3:#858c9c;
+  --ink:#1b2030; --on-ink:#eef0f6;
+  --accent:#b85c12; --accent-soft:#fbead9; --accent-line:#e7b483;
+  --ok:#1d7a4e; --ok-soft:#e0f2e7;
+  --warn:#9a6a08; --warn-soft:#fbf0d8;
+  --crit:#a92b22; --crit-soft:#fbe4e1;
+  --shadow:0 1px 2px rgba(20,24,34,.06), 0 8px 24px rgba(20,24,34,.06);
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"IBM Plex Serif",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:10px;
+}
+:root[data-theme="dark"]{
+  --bg:#0f1117; --surface:#171a22; --surface-2:#1f232d; --surface-3:#13161d;
+  --line:#2b303c; --line-soft:#232832;
+  --fg:#e9ebf1; --fg-2:#9aa2b3; --fg-3:#767e8f;
+  --ink:#0b0d13; --on-ink:#e9ebf1;
+  --accent:#eda058; --accent-soft:#2e2318; --accent-line:#5c421f;
+  --ok:#52c08a; --ok-soft:#142c21;
+  --warn:#dda63f; --warn-soft:#2c2415;
+  --crit:#ef6f62; --crit-soft:#331c1a;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--sans); font-size:14px; line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0; text-wrap:balance; letter-spacing:-.015em}
+p{margin:0}
+button{font:inherit; color:inherit; cursor:pointer; border:0; background:none}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:6px}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+/* ---------- shell ---------- */
+.shell{max-width:1360px; margin:0 auto; display:grid; grid-template-columns:56px 232px minmax(0,1fr); gap:0; min-height:100%}
+.rail{border-right:1px solid var(--line-soft); padding:14px 0; display:flex; flex-direction:column; align-items:center; gap:14px; position:sticky; top:0; height:100vh}
+.rail .mark{width:34px;height:34px}
+.rail-ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--fg-3)}
+.rail-ico.on{background:var(--surface-2); color:var(--fg)}
+.rail .spacer{flex:1}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-size:12px;font-weight:600}
+
+.side{border-right:1px solid var(--line-soft); padding:16px 14px 24px; position:sticky; top:0; height:100vh; overflow:auto; display:flex; flex-direction:column; gap:18px}
+.brand{display:flex; align-items:center; gap:9px; padding:2px 4px}
+.brand .word{font-family:var(--serif); font-size:19px; font-weight:600; letter-spacing:-.01em}
+.brand .tag{font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--fg-3); margin-top:-2px}
+.searchbox{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--fg-3);background:var(--surface)}
+.searchbox .kbd{margin-left:auto;font-size:11px;font-family:var(--mono);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.navlist{display:flex;flex-direction:column;gap:2px}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--fg-2);width:100%;text-align:left;font-weight:500}
+.nav:hover{background:var(--surface-2)}
+.nav.on{background:var(--surface-2); color:var(--fg); font-weight:600}
+.nav .count{margin-left:auto;font-size:11px;color:var(--fg-3);font-family:var(--mono)}
+.nav-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--fg-3);padding:10px 10px 4px;font-weight:600}
+.budget{margin-top:auto;border:1px solid var(--line);border-radius:var(--r);padding:11px;background:var(--surface);display:flex;flex-direction:column;gap:7px}
+.bar{height:6px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+
+.main{min-width:0; display:flex; flex-direction:column}
+.topbar{display:flex;align-items:center;gap:12px;padding:16px 0 14px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:var(--bg);z-index:5}
+.topbar h1{font-size:17px;font-weight:600}
+.topbar .sub{color:var(--fg-2);font-size:12.5px}
+.topbar .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.pad{padding:22px 0 60px;display:flex;flex-direction:column;gap:22px}
+.screen[hidden]{display:none!important}
+
+/* ---------- atoms ---------- */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:500;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.btn:hover{border-color:var(--fg-3)}
+.btn.primary{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.btn.primary:hover{opacity:.9}
+.btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.accent{color:#fff}
+:root[data-theme="dark"] .btn.accent{color:#1b1206}
+.btn.sm{padding:4px 9px;font-size:12.5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--fg-2);background:var(--surface)}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600;letter-spacing:.01em}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.crit{background:var(--crit-soft);color:var(--crit)}
+.pill.idle{background:var(--surface-2);color:var(--fg-2)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.muted{color:var(--fg-2)}
+.small{font-size:12.5px}
+.eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--fg-3);font-weight:600}
+.grid{display:grid;gap:14px}
+.sec-head{display:flex;align-items:baseline;gap:10px}
+.sec-head h2{font-size:14.5px;font-weight:600}
+hr.rule{border:0;border-top:1px solid var(--line-soft);margin:0}
+
+/* ---------- home ---------- */
+.hero{display:flex;flex-direction:column;gap:16px;padding:34px 0 10px;align-items:center;text-align:center}
+.hero h2{font-family:var(--serif);font-size:30px;font-weight:400;letter-spacing:-.02em}
+.hero .lede{color:var(--fg-2);max-width:52ch}
+.ask{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.ask .head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line-soft);font-size:12.5px;color:var(--fg-2)}
+.ask textarea{width:100%;border:0;background:none;padding:14px 14px 8px;resize:none;font:inherit;color:inherit;min-height:74px}
+.ask textarea::placeholder{color:var(--fg-3)}
+.ask .foot{display:flex;align-items:center;gap:8px;padding:8px 10px 10px}
+.ask .foot .send{margin-left:auto;width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center}
+.starters{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:680px}
+.starter{border:1px dashed var(--line);border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--fg-2);background:var(--surface-3)}
+.starter:hover{border-style:solid;color:var(--fg)}
+
+.tiles{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.tile{padding:14px;display:flex;flex-direction:column;gap:5px}
+.tile .n{font-size:24px;font-weight:600;font-family:var(--mono);letter-spacing:-.02em}
+.tile .d{font-size:12px;color:var(--fg-3)}
+.spark{height:28px;width:100%}
+
+/* ---------- lists ---------- */
+.rows{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line-soft);width:100%;text-align:left}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--surface-3)}
+.sq{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:15px}
+.row .nm{font-weight:600}
+.row .ds{color:var(--fg-2);font-size:12.5px}
+.row .meta{margin-left:auto;display:flex;align-items:center;gap:14px;flex:none}
+.cards{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.tplcard{padding:14px;display:flex;flex-direction:column;gap:8px;text-align:left;align-items:flex-start}
+.tplcard:hover{border-color:var(--accent-line)}
+
+/* ---------- builder ---------- */
+.builder{display:grid;grid-template-columns:minmax(0,1fr) 352px;gap:0;border-top:1px solid var(--line-soft)}
+.bform{padding:22px 22px 60px 0;display:flex;flex-direction:column;gap:20px;min-width:0}
+.bhead{display:flex;gap:14px;align-items:flex-start}
+.bhead .sq{width:46px;height:46px;border-radius:12px;font-size:20px}
+.field{display:grid;grid-template-columns:132px minmax(0,1fr);gap:12px;align-items:start}
+.field > label{color:var(--fg-2);padding-top:6px;font-size:13px}
+.field .val{display:flex;flex-wrap:wrap;gap:7px;align-items:center;min-width:0}
+.add{width:26px;height:26px;border-radius:7px;border:1px dashed var(--line);display:grid;place-items:center;color:var(--fg-3)}
+.add:hover{border-style:solid;color:var(--fg)}
+.instr{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:16px 18px;font-size:13.5px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.instr h4{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-3)}
+.instr p{color:var(--fg-2)}
+.instr ol{margin:0;padding-left:18px;color:var(--fg-2);display:flex;flex-direction:column;gap:5px}
+.btest{border-left:1px solid var(--line-soft);padding:16px 0 16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0;background:var(--surface-3)}
+.msg{border-radius:10px;padding:9px 12px;font-size:13px;max-width:92%}
+.msg.me{background:var(--surface-2);align-self:flex-end}
+.msg.ag{background:var(--surface);border:1px solid var(--line-soft)}
+.trace{font-family:var(--mono);font-size:11.5px;color:var(--fg-3);display:flex;align-items:center;gap:7px}
+.askmini{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:9px 11px;color:var(--fg-3);display:flex;align-items:center;gap:8px;margin-top:auto}
+
+/* ---------- run log ---------- */
+.steps{display:flex;flex-direction:column}
+.step{border-bottom:1px solid var(--line-soft)}
+.step:last-child{border-bottom:0}
+.step .bar2{display:flex;align-items:center;gap:11px;padding:10px 14px;width:100%;text-align:left}
+.step .bar2:hover{background:var(--surface-3)}
+.step .idx{font-family:var(--mono);font-size:11.5px;color:var(--fg-3);width:20px;flex:none}
+.step .tool{font-family:var(--mono);font-size:12.5px}
+.step .why{color:var(--fg-2);font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.step .rt{margin-left:auto;display:flex;align-items:center;gap:12px;flex:none;font-family:var(--mono);font-size:11.5px;color:var(--fg-3)}
+.payload{padding:0 14px 14px 45px;display:flex;flex-direction:column;gap:8px}
+pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11.5px;overflow-x:auto;color:var(--fg-2)}
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--fg-3);padding:9px 14px;border-bottom:1px solid var(--line-soft);font-weight:600}
+.table td{padding:10px 14px;border-bottom:1px solid var(--line-soft)}
+.table tr:last-child td{border-bottom:0}
+
+/* ---------- modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(12,14,20,.55);display:grid;place-items:center;z-index:40;padding:18px}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);width:min(560px,100%);max-height:86vh;overflow:auto}
+.modal .mh{padding:16px 18px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:10px}
+.modal .mb{padding:18px;display:flex;flex-direction:column;gap:16px}
+.modal .mf{padding:14px 18px;border-top:1px solid var(--line-soft);display:flex;gap:8px;align-items:center}
+.opt{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:11px;width:100%;text-align:left}
+.opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.box{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--line);flex:none;margin-top:1px;display:grid;place-items:center;color:transparent}
+.opt.on .box{background:var(--accent);border-color:var(--accent);color:#fff}
+.ladder{display:flex;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.rung{flex:1;padding:10px;text-align:center;font-size:12.5px;border-right:1px solid var(--line);color:var(--fg-2)}
+.rung:last-child{border-right:0}
+.rung.on{background:var(--ink);color:var(--on-ink);font-weight:600}
+
+/* ---------- tour ---------- */
+#tourLayer[hidden]{display:none!important}
+.spot{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px rgba(10,12,18,.62), 0 0 0 2px var(--accent);z-index:50;pointer-events:none;transition:all .28s cubic-bezier(.4,0,.2,1)}
+.tcard{position:fixed;z-index:51;width:min(340px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:10px;transition:all .28s cubic-bezier(.4,0,.2,1)}
+.tcard h3{font-family:var(--serif);font-size:17px;font-weight:600}
+.tcard p{color:var(--fg-2);font-size:13.5px}
+.tcard .tfoot{display:flex;align-items:center;gap:8px;padding-top:4px}
+.tcard .prog{font-family:var(--mono);font-size:11.5px;color:var(--fg-3)}
+.tcard .ev{font-size:11.5px;color:var(--fg-3);border-left:2px solid var(--accent-line);padding-left:9px;font-style:italic;font-family:var(--serif)}
+.tblock{position:fixed;inset:0;z-index:49}
+.pips{display:flex;gap:4px;margin-right:auto}
+.pip{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.pip.on{background:var(--accent)}
+
+.tourbtn{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:30;box-shadow:var(--shadow)}
+
+@media (max-width:1040px){
+  .builder{grid-template-columns:minmax(0,1fr)}
+  .btest{border-left:0;border-top:1px solid var(--line-soft);padding:16px 0}
+  .bform{padding-right:0}
+}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}
+  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line-soft);padding:14px 0}
+  .budget{margin-top:0}
+  .field{grid-template-columns:minmax(0,1fr)}
+  .field > label{padding-top:0}
+  .hero h2{font-size:24px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo" viewBox="0 0 32 32">
+      <rect width="32" height="32" rx="9" fill="var(--ink)"/>
+      <circle cx="16" cy="19" r="7.2" fill="var(--accent)"/>
+      <rect x="4" y="19" width="24" height="9" fill="var(--ink)"/>
+      <rect x="4" y="18.4" width="24" height="1.7" rx=".85" fill="var(--accent)"/>
+      <rect x="7.5" y="22.6" width="11" height="1.5" rx=".75" fill="var(--accent)" opacity=".5"/>
+    </symbol>
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-agent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 4v3M9 12.5h.01M15 12.5h.01M10 16h4"/></symbol>
+    <symbol id="i-skill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 4 8 4-8 4-8-4z"/><path d="m4 12 8 4 8-4M4 16l8 4 8-4"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v5M15 3v5M6 8h12v4a6 6 0 0 1-12 0z"/><path d="M12 18v3"/></symbol>
+    <symbol id="i-run" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h13"/><circle cx="18.5" cy="12" r="2"/></symbol>
+    <symbol id="i-kb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h5a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H5zM19 5h-5a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h5z"/></symbol>
+    <symbol id="i-gov" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 5 6.5v5c0 4.3 2.9 7.6 7 9 4.1-1.4 7-4.7 7-9v-5z"/><path d="m9.3 12 1.9 1.9 3.5-3.6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></symbol>
+  </defs>
+</svg>
+
+<div class="shell">
+  <!-- icon rail -->
+  <nav class="rail" aria-label="Workspaces">
+    <svg class="mark" aria-label="Horizon"><use href="#logo"/></svg>
+    <div class="rail-ico on" title="Horizon"><svg width="18" height="18"><use href="#i-agent"/></svg></div>
+    <div class="rail-ico" title="Analytics"><svg width="18" height="18"><use href="#i-run"/></svg></div>
+    <div class="rail-ico" title="Library"><svg width="18" height="18"><use href="#i-kb"/></svg></div>
+    <div class="spacer"></div>
+    <button class="rail-ico" id="themeBtn" title="Switch theme"><svg width="18" height="18"><use href="#i-sun"/></svg></button>
+    <div class="avatar">PS</div>
+  </nav>
+
+  <!-- sidebar -->
+  <aside class="side">
+    <div class="brand">
+      <svg width="30" height="30"><use href="#logo"/></svg>
+      <div>
+        <div class="word">Horizon</div>
+        <div class="tag">Acme Corp · Workspace</div>
+      </div>
+    </div>
+    <div class="searchbox"><svg width="15" height="15"><use href="#i-search"/></svg> Search<span class="kbd">⌘K</span></div>
+    <div class="navlist" id="navlist">
+      <div class="nav-label">Build</div>
+      <button class="nav on" data-go="home"><svg width="17" height="17"><use href="#i-home"/></svg> Home</button>
+      <button class="nav" data-go="agents" id="navAgents"><svg width="17" height="17"><use href="#i-agent"/></svg> Agents <span class="count">6</span></button>
+      <button class="nav" data-go="skills" id="navSkills"><svg width="17" height="17"><use href="#i-skill"/></svg> Skills <span class="count">14</span></button>
+      <button class="nav" data-go="connectors"><svg width="17" height="17"><use href="#i-plug"/></svg> Connectors <span class="count">9</span></button>
+      <button class="nav" data-go="knowledge"><svg width="17" height="17"><use href="#i-kb"/></svg> Knowledge</button>
+      <div class="nav-label">Operate</div>
+      <button class="nav" data-go="runs" id="navRuns"><svg width="17" height="17"><use href="#i-run"/></svg> Runs <span class="count">248</span></button>
+      <button class="nav" data-go="governance" id="navGov"><svg width="17" height="17"><use href="#i-gov"/></svg> Governance</button>
+    </div>
+    <div class="budget" id="budgetCard">
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="eyebrow">October budget</span>
+        <span class="mono small" style="margin-left:auto">62%</span>
+      </div>
+      <div class="bar"><i style="width:62%"></i></div>
+      <div class="small muted mono">$12,400 of $20,000</div>
+      <div class="small muted">Unused budget rolls over. Agents pause at 100% instead of overbilling.</div>
+    </div>
+  </aside>
+
+  <!-- main -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="crumb">Home</h1>
+        <div class="sub" id="crumbSub">Everything your team has automated, in one place.</div>
+      </div>
+      <div class="right" id="topActions"></div>
+    </div>
+
+    <!-- HOME -->
+    <section class="screen pad" id="s-home">
+      <div class="hero">
+        <h2>What should your agents handle today?</h2>
+        <p class="lede">Describe the job in plain language. Horizon drafts the agent, picks the tools it needs, and shows you exactly what it will be allowed to do before anything runs.</p>
+        <div class="ask" id="askBox">
+          <div class="head"><svg width="14" height="14"><use href="#i-agent"/></svg> Build mode · Horizon Core (default)</div>
+          <textarea id="askInput" placeholder="e.g. Every weekday at 9am, summarise overnight support tickets and post the top five to #cx-leads…"></textarea>
+          <div class="foot">
+            <span class="chip">＠ Attach</span>
+            <span class="chip">Model: Horizon Core</span>
+            <button class="send" aria-label="Send"><svg width="16" height="16"><use href="#i-up"/></svg></button>
+          </div>
+        </div>
+        <div class="starters">
+          <button class="starter" data-seed="Watch competitor pricing pages and tell me what changed">Watch competitor pricing</button>
+          <button class="starter" data-seed="Draft weekly revenue review deck from the finance warehouse">Weekly revenue deck</button>
+          <button class="starter" data-seed="Triage inbound support email and route by severity">Triage support email</button>
+        </div>
+      </div>
+
+      <hr class="rule">
+
+      <div class="sec-head"><h2>This week</h2><span class="small muted">across 6 agents</span></div>
+      <div class="grid tiles">
+        <div class="card tile"><span class="eyebrow">Runs completed</span><span class="n">248</span><span class="d">+41 vs last week</span>
+          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,22 14,19 28,20 42,14 56,15 70,9 84,7 100,4" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>
+        </div>
+        <div class="card tile"><span class="eyebrow">Success rate</span><span class="n">96.4%</span><span class="d">9 failures, all with a log</span>
+          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,8 14,10 28,6 42,7 56,5 70,9 84,4 100,5" fill="none" stroke="var(--ok)" stroke-width="2"/></svg>
+        </div>
+        <div class="card tile"><span class="eyebrow">Hours returned</span><span class="n">312</span><span class="d">Measured against step baselines</span>
+          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,24 14,21 28,18 42,17 56,12 70,11 84,6 100,3" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>
+        </div>
+        <div class="card tile"><span class="eyebrow">Awaiting approval</span><span class="n">3</span><span class="d">Oldest: 11 minutes</span>
+          <div style="margin-top:4px"><span class="pill warn"><span class="dot"></span>Needs a human</span></div>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+        <div class="card">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center"><h2 style="font-size:13.5px">Recent runs</h2><button class="btn sm" style="margin-left:auto" data-go="runs">Open log</button></div>
+          <div class="rows" id="homeRuns"></div>
+        </div>
+        <div class="card">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center"><h2 style="font-size:13.5px">Proposed by your agents</h2><button class="btn sm" style="margin-left:auto" data-go="skills">Review</button></div>
+          <div class="rows" id="homeProps"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENTS -->
+    <section class="screen pad" id="s-agents" hidden>
+      <div class="sec-head"><h2>Start from a template</h2><span class="small muted">Pre-wired skills, tools and approval rules</span></div>
+      <div class="grid cards" id="tplGrid"></div>
+      <hr class="rule">
+      <div class="sec-head"><h2>Your agents</h2><span class="small muted">6 agents · 2 shared with the team</span></div>
+      <div class="card"><div class="rows" id="agentRows"></div></div>
+    </section>
+
+    <!-- BUILDER -->
+    <section class="screen" id="s-builder" hidden>
+      <div class="builder">
+        <div class="bform">
+          <div class="bhead">
+            <div class="sq" style="background:var(--accent-soft);color:var(--accent)">◑</div>
+            <div style="min-width:0">
+              <h2 style="font-size:19px" contenteditable="true" spellcheck="false">Overnight Support Digest</h2>
+              <p class="muted small" style="margin-top:3px">Reads overnight tickets, ranks what is escalating, and posts a five-line brief to #cx-leads.</p>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:8px;flex:none"><span class="pill idle"><span class="dot"></span>Draft</span></div>
+          </div>
+
+          <div class="field"><label for="f-owner">Owner &amp; team</label><div class="val">
+            <span class="chip">Prince S.</span><span class="chip">Customer Experience</span><button class="add" id="f-owner" aria-label="Add team"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
+          </div></div>
+
+          <div class="field" id="fModel"><label>Model</label><div class="val">
+            <span class="chip" style="border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)">Horizon Core · default</span>
+            <span class="chip">Fallback: Horizon Lite</span>
+            <span class="chip">Bring your own key</span>
+          </div></div>
+
+          <div class="field" id="fConn"><label>Connectors</label><div class="val">
+            <span class="chip">Zendesk · read tickets</span>
+            <span class="chip">Slack · post to #cx-leads</span>
+            <span class="chip">Snowflake · read CX_MART</span>
+            <button class="add" aria-label="Add connector"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
+          </div></div>
+
+          <div class="field" id="fSkills"><label>Skills</label><div class="val">
+            <span class="chip">ticket-triage</span><span class="chip">severity-rubric</span><span class="chip">brief-writing</span><span class="chip">acme-tone</span>
+            <button class="add" aria-label="Add skill"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
+          </div></div>
+
+          <div class="field"><label>Knowledge</label><div class="val">
+            <span class="chip">CX Playbook v4</span><span class="chip">SLA matrix</span><button class="add" aria-label="Add knowledge"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
+          </div></div>
+
+          <div class="field" id="fGuard"><label>Guardrails</label><div class="val">
+            <span class="chip" style="border-color:var(--accent-line)">Ask before posting externally</span>
+            <span class="chip">Cap 400 credits / run</span>
+            <span class="chip">No customer PII in output</span>
+            <button class="add" aria-label="Add guardrail"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
+          </div></div>
+
+          <div class="instr" id="fInstr">
+            <h4>Instructions</h4>
+            <p>You write the overnight support brief that the CX leads read before standup. You are accurate before you are brief, and brief before you are interesting.</p>
+            <h4 style="margin-top:4px">Process</h4>
+            <ol>
+              <li>Pull every ticket created or reopened since 18:00 UTC yesterday.</li>
+              <li>Score each against the severity rubric. Never invent a severity — if the rubric is ambiguous, say so.</li>
+              <li>Group by product area, then rank by customers affected × severity.</li>
+              <li>Write five lines. Each names the product area, the count, and the one decision a lead has to make.</li>
+              <li>Attach the ticket IDs behind each line. A claim without an ID does not ship.</li>
+            </ol>
+            <h4 style="margin-top:4px">Never</h4>
+            <p>Never close, merge or reply to a ticket. Never name a customer in Slack. Never estimate a number you did not read.</p>
+          </div>
+        </div>
+
+        <div class="btest">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="eyebrow">Test run</span>
+            <span class="small muted mono" style="margin-left:auto">38 credits</span>
+          </div>
+          <div class="msg me">Run it on last night's data.</div>
+          <div class="trace"><svg width="12" height="12"><use href="#i-check"/></svg> zendesk.search · 213 tickets · 1.9s</div>
+          <div class="trace"><svg width="12" height="12"><use href="#i-check"/></svg> skill: severity-rubric · 213 scored</div>
+          <div class="trace"><svg width="12" height="12"><use href="#i-check"/></svg> snowflake.query · CX_MART · 0.6s</div>
+          <div class="msg ag"><strong>Overnight brief — 213 tickets, 4 escalating</strong><br><br>1. <strong>Payments</strong> — 34 tickets, 11 customers. Checkout retries failing on UPI after 02:10. Decision: page the payments on-call now or wait for the 10am window.<br><br>2. <strong>Onboarding</strong> — 19 tickets, 6 customers. KYC doc upload rejects valid PDFs over 4MB…</div>
+          <div class="trace" style="color:var(--warn)"><svg width="12" height="12"><use href="#i-clock"/></svg> Paused — asking before it posts to #cx-leads</div>
+          <div class="askmini"><svg width="14" height="14"><use href="#i-agent"/></svg> Ask for a change…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="screen pad" id="s-skills" hidden>
+      <div class="card" id="propCard">
+        <div style="padding:13px 15px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:10px">
+          <h2 style="font-size:13.5px">Proposed from last week's runs</h2>
+          <span class="pill warn" style="margin-left:auto"><span class="dot"></span>3 waiting</span>
+        </div>
+        <div class="rows" id="propRows"></div>
+      </div>
+      <div class="sec-head"><h2>Skill library</h2><span class="small muted">Versioned, reviewable, shared across agents</span></div>
+      <div class="card"><div class="rows" id="skillRows"></div></div>
+    </section>
+
+    <!-- CONNECTORS -->
+    <section class="screen pad" id="s-connectors" hidden>
+      <div class="sec-head"><h2>Connected systems</h2><span class="small muted">Every tool carries the scope it was granted — nothing is "full access"</span></div>
+      <div class="card"><div class="rows" id="connRows"></div></div>
+      <div class="sec-head"><h2>Available</h2><span class="small muted">142 more in the catalogue</span></div>
+      <div class="grid cards" id="connAvail"></div>
+    </section>
+
+    <!-- KNOWLEDGE -->
+    <section class="screen pad" id="s-knowledge" hidden>
+      <div class="sec-head"><h2>Knowledge bases</h2><span class="small muted">Indexed sources agents can cite — answers link back to the paragraph</span></div>
+      <div class="card"><div class="rows" id="kbRows"></div></div>
+    </section>
+
+    <!-- RUNS -->
+    <section class="screen pad" id="s-runs" hidden>
+      <div class="grid tiles" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+        <div class="card tile"><span class="eyebrow">Completed</span><span class="n">239</span><span class="d">last 7 days</span></div>
+        <div class="card tile"><span class="eyebrow">Failed</span><span class="n" style="color:var(--crit)">9</span><span class="d">each with a full trace</span></div>
+        <div class="card tile"><span class="eyebrow">Awaiting approval</span><span class="n" style="color:var(--warn)">3</span><span class="d">resumable from Slack</span></div>
+        <div class="card tile"><span class="eyebrow">Credits spent</span><span class="n">18.4k</span><span class="d">$1.12 per completed run</span></div>
+      </div>
+      <div class="card" id="runTable">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:8px">
+          <h2 style="font-size:13.5px">Run log</h2>
+          <span class="chip sm">All agents</span><span class="chip sm">Last 7 days</span>
+        </div>
+        <div class="rows" id="runRows"></div>
+      </div>
+    </section>
+
+    <!-- RUN DETAIL -->
+    <section class="screen pad" id="s-run" hidden>
+      <div class="card" style="padding:14px 15px;display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+        <div><div class="eyebrow">Agent</div><div style="font-weight:600">Overnight Support Digest</div></div>
+        <div><div class="eyebrow">Started</div><div class="mono small">27 Oct · 09:00:04 UTC</div></div>
+        <div><div class="eyebrow">Duration</div><div class="mono small">2m 41s</div></div>
+        <div><div class="eyebrow">Credits</div><div class="mono small">212</div></div>
+        <div><div class="eyebrow">Trigger</div><div class="small">Schedule · weekdays 09:00</div></div>
+        <div style="margin-left:auto;display:flex;gap:8px"><button class="btn sm">Replay</button><button class="btn sm">Export trace</button></div>
+      </div>
+      <div class="card" id="stepCard">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:9px">
+          <h2 style="font-size:13.5px">Step trace</h2>
+          <span class="small muted">Every tool call, its arguments, what came back, and what it cost</span>
+        </div>
+        <div class="steps" id="stepList"></div>
+      </div>
+    </section>
+
+    <!-- GOVERNANCE -->
+    <section class="screen pad" id="s-governance" hidden>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+        <div class="card" id="budgetPanel">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft)"><h2 style="font-size:13.5px">Budgets by role</h2></div>
+          <div style="padding:14px;display:flex;flex-direction:column;gap:14px" id="budgetRows"></div>
+        </div>
+        <div class="card">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft)"><h2 style="font-size:13.5px">Approval rules</h2></div>
+          <div class="rows" id="ruleRows"></div>
+        </div>
+      </div>
+      <div class="card" id="auditCard">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:8px">
+          <h2 style="font-size:13.5px">Audit trail</h2><span class="small muted">Immutable · exports to your SIEM</span>
+        </div>
+        <div style="overflow-x:auto"><table class="table"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Object</th></tr></thead><tbody id="auditRows"></tbody></table></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<button class="btn accent tourbtn" id="tourBtn">Start guided tour</button>
+
+<!-- deploy modal -->
+<div id="deployModal" hidden></div>
+
+<!-- tour -->
+<div id="tourLayer" hidden>
+  <div class="tblock" id="tblock"></div>
+  <div class="spot" id="spot"></div>
+  <div class="tcard" id="tcard">
+    <div class="eyebrow" id="tStage"></div>
+    <h3 id="tTitle"></h3>
+    <p id="tBody"></p>
+    <div class="ev" id="tEv"></div>
+    <div class="tfoot">
+      <div class="pips" id="tPips"></div>
+      <button class="btn sm" id="tSkip">Exit</button>
+      <button class="btn sm" id="tBack">Back</button>
+      <button class="btn sm accent" id="tNext">Next</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(s){ return document.querySelector(s); };
+  var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var el = function(tag, cls, html){ var n=document.createElement(tag); if(cls) n.className=cls; if(html!=null) n.innerHTML=html; return n; };
+
+  /* ---------- theme ---------- */
+  $("#themeBtn").addEventListener("click", function(){
+    var r = document.documentElement;
+    r.setAttribute("data-theme", r.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+
+  /* ---------- data ---------- */
+  var AGENTS = [
+    {n:"Overnight Support Digest", d:"Ranks overnight tickets, posts the five that need a decision", i:"◑", st:"live", runs:"21/week", ch:"Slack · Schedule"},
+    {n:"Pricing Watch", d:"Reads 11 competitor pricing pages, reports only what changed", i:"◈", st:"live", runs:"48/week", ch:"Email · Schedule"},
+    {n:"Revenue Review Builder", d:"Builds the Monday deck from the finance warehouse", i:"▣", st:"live", runs:"1/week", ch:"Slack"},
+    {n:"Contract Reader", d:"Extracts obligations and renewal dates into the CLM record", i:"❖", st:"review", runs:"paused", ch:"API"},
+    {n:"Field Ops Dispatcher", d:"Routes site complaints to the nearest engineer by SLA", i:"◆", st:"live", runs:"96/week", ch:"WhatsApp"},
+    {n:"Onboarding Buddy", d:"Answers new-joiner questions from the HR knowledge base", i:"●", st:"draft", runs:"—", ch:"Slack"}
+  ];
+  var TEMPLATES = [
+    {n:"Support Digest", d:"Reads your helpdesk overnight and briefs the leads before standup.", t:"Customer Experience", s:"4 skills · 3 tools"},
+    {n:"Competitor Watch", d:"Monitors pages and pricing, reports only the diff with evidence.", t:"Marketing", s:"3 skills · 2 tools"},
+    {n:"Finance Pack Builder", d:"Turns warehouse queries into the weekly review deck.", t:"Finance", s:"5 skills · 3 tools"},
+    {n:"Field Dispatcher", d:"Routes inbound complaints by SLA and location, in 11 languages.", t:"Operations", s:"4 skills · 4 tools"}
+  ];
+  var RUNS = [
+    {a:"Overnight Support Digest", w:"Schedule · 09:00", st:"ok", t:"2m 41s", c:212, ago:"4 min ago"},
+    {a:"Field Ops Dispatcher", w:"WhatsApp · inbound", st:"ok", t:"18s", c:31, ago:"9 min ago"},
+    {a:"Pricing Watch", w:"Schedule · hourly", st:"warn", t:"1m 02s", c:88, ago:"22 min ago"},
+    {a:"Contract Reader", w:"API · /v1/runs", st:"crit", t:"41s", c:64, ago:"1 hr ago"},
+    {a:"Revenue Review Builder", w:"Slack · @mention", st:"ok", t:"6m 12s", c:540, ago:"3 hr ago"}
+  ];
+  var STEPS = [
+    {t:"zendesk.search_tickets", w:"created_at > 2026-10-26T18:00Z", st:"ok", d:"1.9s", c:12,
+     args:'{\n  "query": "created>2026-10-26T18:00 OR reopened>2026-10-26T18:00",\n  "scope": "org:acme",\n  "fields": ["id","subject","priority","product_area"]\n}',
+     out:"213 tickets returned · 4 flagged escalating · 0 redacted fields requested"},
+    {t:"skill: severity-rubric", w:"Scored 213 tickets against the rubric, 6 marked ambiguous", st:"ok", d:"11.4s", c:96,
+     args:'{\n  "skill": "severity-rubric@v7",\n  "input_count": 213,\n  "model": "horizon-core"\n}',
+     out:"P1: 4 · P2: 27 · P3: 118 · P4: 58 · ambiguous: 6 (listed rather than guessed)"},
+    {t:"snowflake.query", w:"CX_MART.customer_tier — read-only role", st:"ok", d:"0.6s", c:8,
+     args:'SELECT account_id, tier, mrr\nFROM CX_MART.CUSTOMER_DIM\nWHERE account_id IN (:ids)',
+     out:"58 rows · role HORIZON_CX_RO · no write grants on this connection"},
+    {t:"skill: brief-writing", w:"Drafted five lines, each carrying its ticket IDs", st:"ok", d:"8.2s", c:84,
+     args:'{\n  "skill": "brief-writing@v3",\n  "tone": "acme-tone@v2",\n  "max_lines": 5\n}',
+     out:"5 lines · 23 ticket IDs attached · 0 claims without a source ID"},
+    {t:"slack.post_message", w:"Held for approval — external-channel guardrail", st:"warn", d:"held 47s", c:0,
+     args:'{\n  "channel": "#cx-leads",\n  "rule": "ask_before_external_post",\n  "approver": "cx-oncall"\n}',
+     out:"Approved by Meera R. at 09:02:41 from Slack · run resumed at the same step"},
+    {t:"slack.post_message", w:"Posted to #cx-leads", st:"ok", d:"0.4s", c:12,
+     args:'{ "channel": "#cx-leads", "ts": "1761537761.004" }',
+     out:"Delivered · 9 readers in first 4 minutes · thread opened by payments on-call"}
+  ];
+  var PROPOSALS = [
+    {k:"New skill", n:"upi-failure-pattern", d:"Seen 6 times: you always check the payments dashboard before writing the P1 line.", a:"Overnight Support Digest"},
+    {k:"Skill fix", n:"severity-rubric → v8", d:"Rubric misses reopened tickets older than 30 days. Patch written, 12 lines.", a:"Field Ops Dispatcher"},
+    {k:"Tool access", n:"Grafana · read dashboards", d:"Needed to confirm the incident window before escalating. Read-only.", a:"Overnight Support Digest"}
+  ];
+  var SKILLS = [
+    {n:"severity-rubric", v:"v7", d:"How Acme grades ticket severity, including the edge cases", u:"4 agents", o:"Meera R."},
+    {n:"brief-writing", v:"v3", d:"Five lines, each with a decision and a source ID", u:"3 agents", o:"Prince S."},
+    {n:"acme-tone", v:"v2", d:"House voice: plain, short, no apologies", u:"6 agents", o:"Brand"},
+    {n:"ticket-triage", v:"v5", d:"Routing table by product area and language", u:"2 agents", o:"CX Ops"},
+    {n:"deck-standards", v:"v4", d:"Slide rules for the Monday review pack", u:"1 agent", o:"Finance"}
+  ];
+  var CONNS = [
+    {n:"Zendesk", s:"Read tickets · no close, no reply", st:"ok", a:"3 agents"},
+    {n:"Slack", s:"Post to 4 named channels · ask before external", st:"ok", a:"5 agents"},
+    {n:"Snowflake", s:"Read CX_MART, FIN_MART · no writes", st:"ok", a:"2 agents"},
+    {n:"Google Drive", s:"Read 2 shared drives", st:"ok", a:"2 agents"},
+    {n:"WhatsApp Business", s:"Send templated messages only", st:"warn", a:"1 agent"},
+    {n:"Salesforce", s:"Write to Opportunity — per-field RBAC pending", st:"warn", a:"0 agents"}
+  ];
+  var CONN_AVAIL = ["Jira","HubSpot","SAP","Notion","GitHub","Tally","Freshdesk","Exotel"];
+  var KBS = [
+    {n:"CX Playbook v4", s:"148 pages · synced from Drive 2 hours ago", u:"3 agents"},
+    {n:"SLA matrix", s:"1 sheet · synced nightly", u:"4 agents"},
+    {n:"Product docs", s:"612 pages · synced from Notion", u:"2 agents"},
+    {n:"HR handbook", s:"74 pages · restricted to People team agents", u:"1 agent"}
+  ];
+  var BUDGETS = [
+    {r:"Customer Experience", u:72, s:"$7,200 of $10,000"},
+    {r:"Finance", u:41, s:"$2,050 of $5,000"},
+    {r:"Operations", u:63, s:"$3,150 of $5,000"}
+  ];
+  var RULES = [
+    {n:"Ask before any external message", d:"Slack channels outside the team, all email, all WhatsApp", w:"CX on-call"},
+    {n:"Ask before writing to a system of record", d:"Salesforce, SAP, Zendesk ticket state", w:"Object owner"},
+    {n:"Ask above 500 credits in one run", d:"Evaluated on the argument, not the tool", w:"Budget owner"},
+    {n:"Never send customer PII outside the approved region", d:"Blocked outright — there is no approval path", w:"Blocked"}
+  ];
+  var AUDIT = [
+    {t:"09:02:41", w:"Meera R.", a:"Approved external post", o:"run_8f21 · #cx-leads"},
+    {t:"08:51:10", w:"Prince S.", a:"Published skill v7", o:"severity-rubric"},
+    {t:"08:44:02", w:"System", a:"Paused agent at budget cap", o:"Contract Reader"},
+    {t:"08:12:55", w:"Rahul K.", a:"Granted read scope", o:"Snowflake · CX_MART"}
+  ];
+
+  /* ---------- render ---------- */
+  function stPill(st){
+    var m = {ok:["ok","Completed"], warn:["warn","Approval"], crit:["crit","Failed"],
+             live:["ok","Live"], draft:["idle","Draft"], review:["warn","In review"]};
+    var v = m[st] || m.ok;
+    return '<span class="pill '+v[0]+'"><span class="dot"></span>'+v[1]+'</span>';
+  }
+
+  $("#agentRows").innerHTML = AGENTS.map(function(a){
+    return '<button class="row" data-open="builder"><span class="sq" style="background:var(--surface-2)">'+a.i+'</span>'+
+      '<span style="min-width:0"><span class="nm">'+a.n+'</span><br><span class="ds">'+a.d+'</span></span>'+
+      '<span class="meta"><span class="small muted">'+a.ch+'</span><span class="small muted mono">'+a.runs+'</span>'+stPill(a.st)+
+      '<svg width="15" height="15" style="color:var(--fg-3)"><use href="#i-chev"/></svg></span></button>';
+  }).join("");
+
+  $("#tplGrid").innerHTML = TEMPLATES.map(function(t){
+    return '<button class="card tplcard" data-open="builder"><span class="eyebrow">'+t.t+'</span>'+
+      '<strong style="font-size:14.5px">'+t.n+'</strong><span class="small muted">'+t.d+'</span>'+
+      '<span class="chip" style="margin-top:4px">'+t.s+'</span></button>';
+  }).join("");
+
+  function runRow(r, compact){
+    return '<button class="row" data-open="run"><span class="sq" style="background:var(--surface-2)">'+
+      (r.st==="crit"?"✕":r.st==="warn"?"⏸":"✓")+'</span>'+
+      '<span style="min-width:0"><span class="nm">'+r.a+'</span><br><span class="ds">'+r.w+'</span></span>'+
+      '<span class="meta">'+(compact?"":'<span class="small muted mono">'+r.t+'</span><span class="small muted mono">'+r.c+' cr</span>')+
+      '<span class="small muted">'+r.ago+'</span>'+stPill(r.st)+'</span></button>';
+  }
+  $("#runRows").innerHTML = RUNS.concat(RUNS).map(function(r){ return runRow(r,false); }).join("");
+  $("#homeRuns").innerHTML = RUNS.slice(0,4).map(function(r){ return runRow(r,true); }).join("");
+
+  function propRow(p){
+    return '<div class="row"><span class="sq" style="background:var(--accent-soft);color:var(--accent)">✦</span>'+
+      '<span style="min-width:0"><span class="nm">'+p.k+': '+p.n+'</span><br><span class="ds">'+p.d+'</span>'+
+      '<br><span class="small" style="color:var(--fg-3)">from '+p.a+'</span></span>'+
+      '<span class="meta"><button class="btn sm">Decline</button><button class="btn sm primary">Review diff</button></span></div>';
+  }
+  $("#propRows").innerHTML = PROPOSALS.map(propRow).join("");
+  $("#homeProps").innerHTML = PROPOSALS.map(function(p){
+    return '<div class="row"><span class="sq" style="background:var(--accent-soft);color:var(--accent)">✦</span>'+
+      '<span style="min-width:0"><span class="nm">'+p.n+'</span><br><span class="ds">'+p.k+' · '+p.a+'</span></span>'+
+      '<span class="meta"><button class="btn sm">Review</button></span></div>';
+  }).join("");
+
+  $("#skillRows").innerHTML = SKILLS.map(function(s){
+    return '<button class="row"><span class="sq" style="background:var(--surface-2)">◧</span>'+
+      '<span style="min-width:0"><span class="nm">'+s.n+' <span class="mono small muted">'+s.v+'</span></span><br><span class="ds">'+s.d+'</span></span>'+
+      '<span class="meta"><span class="small muted">'+s.o+'</span><span class="chip">'+s.u+'</span></span></button>';
+  }).join("");
+
+  $("#connRows").innerHTML = CONNS.map(function(c){
+    return '<button class="row"><span class="sq" style="background:var(--surface-2)">⬡</span>'+
+      '<span style="min-width:0"><span class="nm">'+c.n+'</span><br><span class="ds">'+c.s+'</span></span>'+
+      '<span class="meta"><span class="small muted">'+c.a+'</span>'+
+      (c.st==="warn"?'<span class="pill warn"><span class="dot"></span>Scope review</span>':'<span class="pill ok"><span class="dot"></span>Scoped</span>')+
+      '</span></button>';
+  }).join("");
+  $("#connAvail").innerHTML = CONN_AVAIL.map(function(c){
+    return '<button class="card tplcard" style="flex-direction:row;align-items:center;gap:10px"><span class="sq" style="background:var(--surface-2)">⬡</span><strong>'+c+'</strong><span class="add" style="margin-left:auto"><svg width="13" height="13"><use href="#i-plus"/></svg></span></button>';
+  }).join("");
+
+  $("#kbRows").innerHTML = KBS.map(function(k){
+    return '<button class="row"><span class="sq" style="background:var(--surface-2)">▤</span>'+
+      '<span style="min-width:0"><span class="nm">'+k.n+'</span><br><span class="ds">'+k.s+'</span></span>'+
+      '<span class="meta"><span class="chip">'+k.u+'</span></span></button>';
+  }).join("");
+
+  $("#stepList").innerHTML = STEPS.map(function(s,i){
+    var ic = s.st==="warn" ? '<span class="pill warn"><span class="dot"></span>Held</span>' : '<span class="pill ok"><span class="dot"></span>OK</span>';
+    return '<div class="step"><button class="bar2" data-step="'+i+'">'+
+      '<span class="idx">'+(i+1)+'</span><span class="tool">'+s.t+'</span><span class="why">'+s.w+'</span>'+
+      '<span class="rt"><span>'+s.d+'</span><span>'+s.c+' cr</span>'+ic+'</span></button>'+
+      '<div class="payload" hidden id="pl'+i+'">'+
+      '<div class="eyebrow">Arguments</div><pre>'+s.args.replace(/</g,"&lt;")+'</pre>'+
+      '<div class="eyebrow">Result</div><pre>'+s.out+'</pre></div></div>';
+  }).join("");
+
+  $("#budgetRows").innerHTML = BUDGETS.map(function(b){
+    return '<div><div style="display:flex;align-items:baseline;gap:8px"><strong style="font-size:13px">'+b.r+'</strong>'+
+      '<span class="mono small muted" style="margin-left:auto">'+b.u+'%</span></div>'+
+      '<div class="bar" style="margin:6px 0 4px"><i style="width:'+b.u+'%;background:'+(b.u>70?"var(--warn)":"var(--accent)")+'"></i></div>'+
+      '<div class="small muted mono">'+b.s+'</div></div>';
+  }).join("");
+
+  $("#ruleRows").innerHTML = RULES.map(function(r){
+    return '<div class="row"><span style="min-width:0"><span class="nm">'+r.n+'</span><br><span class="ds">'+r.d+'</span></span>'+
+      '<span class="meta">'+(r.w==="Blocked"?'<span class="pill crit"><span class="dot"></span>Blocked</span>':'<span class="chip">'+r.w+'</span>')+'</span></div>';
+  }).join("");
+
+  $("#auditRows").innerHTML = AUDIT.map(function(a){
+    return '<tr><td class="mono small">'+a.t+'</td><td>'+a.w+'</td><td>'+a.a+'</td><td class="mono small muted">'+a.o+'</td></tr>';
+  }).join("");
+
+  /* ---------- navigation ---------- */
+  var META = {
+    home:       ["Home","Everything your team has automated, in one place."],
+    agents:     ["Agents","Agents do real work with your tools, under rules you set."],
+    builder:    ["Overnight Support Digest","Draft · not deployed · changes are versioned"],
+    skills:     ["Skills","Reusable instructions your agents share — and propose."],
+    connectors: ["Connectors","Each tool carries the scope it was granted."],
+    knowledge:  ["Knowledge","Sources agents may cite, with the citation attached."],
+    runs:       ["Runs","Every run, every step, every credit."],
+    run:        ["Run 8f21","Overnight Support Digest · 27 Oct 09:00 UTC"],
+    governance: ["Governance","Budgets, approval rules and the audit trail."]
+  };
+  var ACTIONS = {
+    agents: '<button class="btn sm">Browse templates</button><button class="btn sm accent" data-open="builder"><svg width="13" height="13"><use href="#i-plus"/></svg> Create agent</button>',
+    builder: '<button class="btn sm">Version history</button><button class="btn sm primary" id="deployBtn">Deploy</button>',
+    skills: '<button class="btn sm accent"><svg width="13" height="13"><use href="#i-plus"/></svg> New skill</button>',
+    connectors: '<button class="btn sm">Manage scopes</button>',
+    runs: '<button class="btn sm">Export</button>',
+    run: '<button class="btn sm" data-go="runs">Back to log</button>',
+    governance: '<button class="btn sm">Export audit</button>'
+  };
+  var current = "home";
+  function go(id){
+    current = id;
+    $$(".screen").forEach(function(s){ s.hidden = (s.id !== "s-"+id); });
+    var m = META[id] || META.home;
+    $("#crumb").textContent = m[0];
+    $("#crumbSub").textContent = m[1];
+    $("#topActions").innerHTML = ACTIONS[id] || "";
+    var navFor = (id==="builder") ? "agents" : (id==="run") ? "runs" : id;
+    $$("#navlist .nav").forEach(function(b){ b.classList.toggle("on", b.dataset.go === navFor); });
+    window.scrollTo(0,0);
+  }
+
+  document.addEventListener("click", function(e){
+    var g = e.target.closest("[data-go]");
+    if(g){ go(g.dataset.go); return; }
+    var o = e.target.closest("[data-open]");
+    if(o){ go(o.dataset.open); return; }
+    if(e.target.closest("#deployBtn")){ openDeploy(); return; }
+    var st = e.target.closest("[data-step]");
+    if(st){ var p = $("#pl"+st.dataset.step); p.hidden = !p.hidden; return; }
+    var seed = e.target.closest(".starter");
+    if(seed){ $("#askInput").value = seed.dataset.seed; $("#askInput").focus(); return; }
+  });
+  $("#askBox").querySelector(".send").addEventListener("click", function(){ go("builder"); });
+
+  /* ---------- deploy modal ---------- */
+  var deployState = {ch:["slack","schedule"], env:1};
+  function openDeploy(){
+    var m = $("#deployModal");
+    m.hidden = false;
+    m.innerHTML =
+      '<div class="scrim" id="scrim"><div class="modal" role="dialog" aria-label="Deploy agent">'+
+      '<div class="mh"><svg width="18" height="18"><use href="#i-up"/></svg><strong>Deploy Overnight Support Digest</strong>'+
+      '<button class="btn sm" id="closeDeploy" style="margin-left:auto">Close</button></div>'+
+      '<div class="mb">'+
+        '<div><div class="eyebrow" style="margin-bottom:8px">Where people reach it</div>'+
+        '<div style="display:grid;gap:8px">'+
+          dOpt("slack","Slack","Mention it in #cx-leads, or let it post on schedule. Approvals happen in the thread.")+
+          dOpt("schedule","Schedule","Weekdays at 09:00 UTC. Skips the holiday calendar you set.")+
+          dOpt("email","Email","digest@agents.acme.com — replies come back as follow-up turns.")+
+          dOpt("api","API","POST /v1/agents/overnight-digest/runs, with the same guardrails.")+
+        '</div></div>'+
+        '<div><div class="eyebrow" style="margin-bottom:8px">Where it runs</div>'+
+        '<div class="ladder" id="ladder">'+
+          '<button class="rung" data-env="0">Horizon cloud</button>'+
+          '<button class="rung on" data-env="1">Your VPC (us-east-1)</button>'+
+          '<button class="rung" data-env="2">Self-hosted</button>'+
+        '</div>'+
+        '<p class="small muted" style="margin-top:8px">Model calls, tool calls and logs all stay in the region you pick. Changing this does not change the agent.</p></div>'+
+        '<div class="card" style="padding:12px;display:flex;flex-direction:column;gap:7px;background:var(--surface-3)">'+
+          '<div class="eyebrow">Before it goes live</div>'+
+          dCheck("3 guardrails active, including ask-before-external-post")+
+          dCheck("Tool scopes reviewed — read-only on Zendesk and Snowflake")+
+          dCheck("Budget capped at 400 credits per run, 20,000 per month")+
+          '<div class="small" style="color:var(--warn);display:flex;gap:7px;align-items:center"><svg width="14" height="14"><use href="#i-clock"/></svg> Evaluation suite not run yet — 18 saved cases available</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="mf"><span class="small muted">Deploys are versioned. Rolling back is one click.</span>'+
+      '<button class="btn sm" id="closeDeploy2" style="margin-left:auto">Cancel</button>'+
+      '<button class="btn sm accent" id="confirmDeploy">Deploy to VPC</button></div>'+
+      '</div></div>';
+    m.addEventListener("click", function(e){
+      if(e.target.id==="scrim" || e.target.closest("#closeDeploy") || e.target.closest("#closeDeploy2")){ closeDeploy(); return; }
+      var r = e.target.closest("[data-env]");
+      if(r){ m.querySelectorAll(".rung").forEach(function(x){x.classList.remove("on");}); r.classList.add("on"); return; }
+      var c = e.target.closest("[data-ch]");
+      if(c){ c.classList.toggle("on"); return; }
+      if(e.target.closest("#confirmDeploy")){ closeDeploy(); go("runs"); }
+    });
+  }
+  function dOpt(k,t,d){
+    var on = deployState.ch.indexOf(k) > -1 ? " on" : "";
+    return '<button class="opt'+on+'" data-ch="'+k+'"><span class="box"><svg width="11" height="11"><use href="#i-check"/></svg></span>'+
+      '<span><strong style="font-size:13px">'+t+'</strong><br><span class="small muted">'+d+'</span></span></button>';
+  }
+  function dCheck(t){
+    return '<div class="small" style="color:var(--ok);display:flex;gap:7px;align-items:center"><svg width="14" height="14"><use href="#i-check"/></svg> <span style="color:var(--fg-2)">'+t+'</span></div>';
+  }
+  function closeDeploy(){ var m=$("#deployModal"); m.hidden = true; m.innerHTML=""; }
+
+  /* ---------- guided tour ---------- */
+  var TOUR = [
+    {stage:"Horizon", title:"An agent platform your IT team can sign off on",
+     body:"Horizon is where someone who does not write code builds an agent, deploys it into the tools their team already uses, and can prove afterwards exactly what it did. Nine stops, about six minutes.",
+     ev:"A working prototype — every screen is clickable.", sel:null, screen:"home"},
+
+    {stage:"Stop 1 · Authoring", title:"You describe the job, not the graph",
+     body:"No canvas, no nodes. You type what should happen and Horizon drafts the agent — instructions, tools, guardrails — for you to correct. The drag-a-graph front door is the form factor this category has walked away from.",
+     ev:"Builders who ship weekly do not want to maintain a diagram.",
+     sel:"#askBox", screen:"home"},
+
+    {stage:"Stop 2 · Agents", title:"Templates carry the governance, not just the prompt",
+     body:"Each template arrives with its skills, its tool scopes and its approval rules already set. A team lead can ship one without filing a ticket with IT, because the rules came with it.",
+     sel:"#tplGrid", screen:"agents"},
+
+    {stage:"Stop 3 · The builder", title:"One screen, no hidden configuration",
+     body:"Identity, model, connectors, skills, knowledge and guardrails sit on one page above the instructions. Everything that governs the agent is visible while you write what it should do.",
+     sel:"#fSkills", screen:"builder"},
+
+    {stage:"Stop 4 · Models", title:"Any model, including your own keys",
+     body:"Pick a default and a fallback. Bring your own keys, or route a workload to whatever is cheapest that still passes its evaluations. The bundled platforms cannot offer you this — their business depends on the model being theirs.",
+     sel:"#fModel", screen:"builder"},
+
+    {stage:"Stop 5 · Guardrails", title:"Rules are read before the tool call, against its arguments",
+     body:"\"Ask before posting externally\" does not mean \"ask whenever Slack is used\" — it reads the channel the agent is about to post into. The run pauses, a named human approves from Slack, and it resumes at the same step.",
+     sel:"#fGuard", screen:"builder"},
+
+    {stage:"Stop 6 · Deploy", title:"Channels and region are a deployment choice",
+     body:"The same agent reaches people through Slack, email, WhatsApp, a schedule or the API. Where it runs — Horizon's cloud, your VPC, or your own hardware — is a separate switch, and it does not change the agent.",
+     sel:".modal", screen:"builder", open:"deploy"},
+
+    {stage:"Stop 7 · Skills", title:"Agents propose their own improvements; people approve them",
+     body:"After a week of runs, the agent writes up what it kept doing by hand: a new skill, a fix to an existing one, a tool it needed. Each arrives as a diff with the evidence behind it. Nothing changes until a human says yes.",
+     sel:"#propCard", screen:"skills"},
+
+    {stage:"Stop 8 · The log", title:"The answer to \"what did it actually do?\"",
+     body:"Every step: the tool, the arguments it sent, what came back, how long it took, what it cost. Open the held step and you can see who approved it and when. It is the first thing anyone asks after an agent surprises them, and the last thing most tools can answer.",
+     sel:"#stepCard", screen:"run"},
+
+    {stage:"Stop 9 · Governance", title:"Budgets that pause, rules that block, a trail that exports",
+     body:"Spend is capped per role and per run, and an agent at its cap stops rather than quietly billing more. Approval rules are org-wide. Every grant, approval and publish lands in an audit trail your security team can take away.",
+     sel:"#auditCard", screen:"governance"},
+
+    {stage:"End of tour", title:"That is Horizon end to end",
+     body:"Describe it, scope it, test it, deploy it, watch it, govern it. Click anywhere in the prototype to explore on your own — or run the tour again from the button in the corner.",
+     ev:"Prototype. Every number and ticket on screen is illustrative.", sel:null, screen:"home"}
+  ];
+
+  var ti = 0, touring = false;
+  function startTour(){ touring = true; ti = 0; $("#tourLayer").hidden = false; $("#tourBtn").hidden = true; renderStep(); }
+  function endTour(){ touring = false; $("#tourLayer").hidden = true; $("#tourBtn").hidden = false; closeDeploy(); }
+
+  function renderStep(){
+    var s = TOUR[ti];
+    if(s.screen && s.screen !== current) go(s.screen);
+    if(s.open === "deploy"){ if($("#deployModal").hidden) openDeploy(); }
+    else { closeDeploy(); }
+
+    $("#tStage").textContent = s.stage;
+    $("#tTitle").textContent = s.title;
+    $("#tBody").textContent = s.body;
+    var ev = $("#tEv");
+    if(s.ev){ ev.textContent = s.ev; ev.hidden = false; } else { ev.hidden = true; }
+    $("#tBack").hidden = (ti === 0);
+    $("#tNext").textContent = (ti === TOUR.length-1) ? "Finish" : "Next";
+    $("#tPips").innerHTML = TOUR.map(function(_,i){ return '<span class="pip'+(i===ti?" on":"")+'"></span>'; }).join("");
+
+    requestAnimationFrame(function(){ place(s); });
+  }
+
+  function place(s){
+    var spot = $("#spot"), card = $("#tcard");
+    var t = s.sel ? document.querySelector(s.sel) : null;
+    var vw = window.innerWidth, vh = window.innerHeight;
+
+    if(!t){
+      spot.style.opacity = "0";
+      spot.style.width = spot.style.height = "0px";
+      spot.style.left = (vw/2)+"px"; spot.style.top = (vh/2)+"px";
+      card.style.left = Math.max(16,(vw - card.offsetWidth)/2)+"px";
+      card.style.top = Math.max(16,(vh - card.offsetHeight)/2)+"px";
+      return;
+    }
+    t.scrollIntoView({block:"center", behavior:"auto"});
+    requestAnimationFrame(function(){
+      var r = t.getBoundingClientRect();
+      var pad = 8;
+      spot.style.opacity = "1";
+      spot.style.left = (r.left - pad)+"px";
+      spot.style.top = (r.top - pad)+"px";
+      spot.style.width = (r.width + pad*2)+"px";
+      spot.style.height = (r.height + pad*2)+"px";
+
+      var cw = card.offsetWidth, ch = card.offsetHeight, gap = 16;
+      var left, top;
+      if(vw < 760){
+        left = Math.max(16, (vw - cw)/2);
+        top = (r.bottom + gap + ch < vh - 16) ? r.bottom + gap : Math.max(16, r.top - gap - ch);
+        if(top + ch > vh - 16) top = Math.max(16, vh - ch - 16);
+      } else if(r.right + gap + cw < vw - 16){
+        left = r.right + gap; top = Math.min(Math.max(16, r.top), vh - ch - 16);
+      } else if(r.left - gap - cw > 16){
+        left = r.left - gap - cw; top = Math.min(Math.max(16, r.top), vh - ch - 16);
+      } else {
+        left = Math.max(16, Math.min(r.left, vw - cw - 16));
+        top = (r.bottom + gap + ch < vh - 16) ? r.bottom + gap : Math.max(16, r.top - gap - ch);
+      }
+      card.style.left = left+"px";
+      card.style.top = top+"px";
+    });
+  }
+
+  $("#tourBtn").addEventListener("click", startTour);
+  $("#tSkip").addEventListener("click", endTour);
+  $("#tBack").addEventListener("click", function(){ if(ti>0){ ti--; renderStep(); } });
+  $("#tNext").addEventListener("click", function(){
+    if(ti === TOUR.length-1){ endTour(); return; }
+    ti++; renderStep();
+  });
+  document.addEventListener("keydown", function(e){
+    if(!touring) return;
+    if(e.key === "Escape") endTour();
+    if(e.key === "ArrowRight") $("#tNext").click();
+    if(e.key === "ArrowLeft") $("#tBack").click();
+  });
+  window.addEventListener("resize", function(){ if(touring) place(TOUR[ti]); });
+
+  go("home");
+})();
+</script>
