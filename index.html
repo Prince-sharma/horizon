@@ -11,552 +11,661 @@
   [hidden] { display: none !important; }
 </style>
 <title>Horizon Agent Platform</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: sticky icon rail + nav sidebar + scrolling work surface; tour overlay spotlights real controls. */
+/* Layout: shadcn sidebar + inset. Tokens, radius and component anatomy follow shadcn/ui. */
 :root{
-  --bg:#f3f4f7; --surface:#ffffff; --surface-2:#e9ebf1; --surface-3:#f7f8fa;
-  --line:#d9dce4; --line-soft:#e7e9ef;
-  --fg:#15181f; --fg-2:#596071; --fg-3:#858c9c;
-  --ink:#1b2030; --on-ink:#eef0f6;
-  --accent:#b85c12; --accent-soft:#fbead9; --accent-line:#e7b483;
-  --ok:#1d7a4e; --ok-soft:#e0f2e7;
-  --warn:#9a6a08; --warn-soft:#fbf0d8;
-  --crit:#a92b22; --crit-soft:#fbe4e1;
-  --shadow:0 1px 2px rgba(20,24,34,.06), 0 8px 24px rgba(20,24,34,.06);
-  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --serif:"IBM Plex Serif",Georgia,serif;
-  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
-  --r:10px;
+  --radius:0.625rem;
+  --background:oklch(1 0 0);
+  --foreground:oklch(0.145 0 0);
+  --card:oklch(1 0 0);
+  --card-foreground:oklch(0.145 0 0);
+  --popover:oklch(1 0 0);
+  --popover-foreground:oklch(0.145 0 0);
+  --primary:oklch(0.55 0.132 52);
+  --primary-foreground:oklch(0.985 0.005 80);
+  --secondary:oklch(0.97 0 0);
+  --secondary-foreground:oklch(0.205 0 0);
+  --muted:oklch(0.97 0 0);
+  --muted-foreground:oklch(0.556 0 0);
+  --accent:oklch(0.97 0 0);
+  --accent-foreground:oklch(0.205 0 0);
+  --destructive:oklch(0.577 0.245 27.325);
+  --destructive-foreground:oklch(0.985 0 0);
+  --success:oklch(0.55 0.13 152);
+  --warning:oklch(0.62 0.13 75);
+  --border:oklch(0.922 0 0);
+  --input:oklch(0.922 0 0);
+  --ring:oklch(0.708 0 0);
+  --chart-1:oklch(0.646 0.142 52);
+  --chart-2:oklch(0.6 0.118 185);
+  --sidebar:oklch(0.985 0 0);
+  --sidebar-foreground:oklch(0.145 0 0);
+  --sidebar-primary:oklch(0.205 0 0);
+  --sidebar-primary-foreground:oklch(0.985 0 0);
+  --sidebar-accent:oklch(0.955 0 0);
+  --sidebar-accent-foreground:oklch(0.205 0 0);
+  --sidebar-border:oklch(0.922 0 0);
+  --sidebar-ring:oklch(0.708 0 0);
+  --sans:"Geist","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  color-scheme:light;
 }
 :root[data-theme="dark"]{
-  --bg:#0f1117; --surface:#171a22; --surface-2:#1f232d; --surface-3:#13161d;
-  --line:#2b303c; --line-soft:#232832;
-  --fg:#e9ebf1; --fg-2:#9aa2b3; --fg-3:#767e8f;
-  --ink:#0b0d13; --on-ink:#e9ebf1;
-  --accent:#eda058; --accent-soft:#2e2318; --accent-line:#5c421f;
-  --ok:#52c08a; --ok-soft:#142c21;
-  --warn:#dda63f; --warn-soft:#2c2415;
-  --crit:#ef6f62; --crit-soft:#331c1a;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  --background:oklch(0.145 0 0);
+  --foreground:oklch(0.985 0 0);
+  --card:oklch(0.205 0 0);
+  --card-foreground:oklch(0.985 0 0);
+  --popover:oklch(0.205 0 0);
+  --popover-foreground:oklch(0.985 0 0);
+  --primary:oklch(0.72 0.145 62);
+  --primary-foreground:oklch(0.21 0.03 50);
+  --secondary:oklch(0.269 0 0);
+  --secondary-foreground:oklch(0.985 0 0);
+  --muted:oklch(0.269 0 0);
+  --muted-foreground:oklch(0.708 0 0);
+  --accent:oklch(0.269 0 0);
+  --accent-foreground:oklch(0.985 0 0);
+  --destructive:oklch(0.704 0.191 22.216);
+  --destructive-foreground:oklch(0.985 0 0);
+  --success:oklch(0.7 0.13 155);
+  --warning:oklch(0.78 0.13 80);
+  --border:oklch(1 0 0 / 10%);
+  --input:oklch(1 0 0 / 15%);
+  --ring:oklch(0.556 0 0);
+  --sidebar:oklch(0.205 0 0);
+  --sidebar-foreground:oklch(0.985 0 0);
+  --sidebar-primary:oklch(0.985 0 0);
+  --sidebar-primary-foreground:oklch(0.205 0 0);
+  --sidebar-accent:oklch(0.269 0 0);
+  --sidebar-accent-foreground:oklch(0.985 0 0);
+  --sidebar-border:oklch(1 0 0 / 10%);
+  --sidebar-ring:oklch(0.556 0 0);
   color-scheme:dark;
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;border-color:var(--border)}
+html,body{height:100%}
 body{
-  background:var(--bg); color:var(--fg); font-family:var(--sans); font-size:14px; line-height:1.5;
-  padding-left:max(16px,env(safe-area-inset-left,0px));
-  padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-block:0;
-  -webkit-font-smoothing:antialiased;
+  margin:0;padding:0;background:var(--background);color:var(--foreground);
+  font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;
 }
-h1,h2,h3,h4{margin:0; text-wrap:balance; letter-spacing:-.015em}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.012em;text-wrap:balance}
 p{margin:0}
-button{font:inherit; color:inherit; cursor:pointer; border:0; background:none}
-:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:6px}
-.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:none;box-shadow:0 0 0 2px var(--background),0 0 0 4px var(--ring);border-radius:calc(var(--radius) - 2px)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.92em}
+.muted{color:var(--muted-foreground)}
+.xs{font-size:12px}
+.sm{font-size:13px}
 
-/* ---------- shell ---------- */
-.shell{max-width:1360px; margin:0 auto; display:grid; grid-template-columns:56px 232px minmax(0,1fr); gap:0; min-height:100%}
-.rail{border-right:1px solid var(--line-soft); padding:14px 0; display:flex; flex-direction:column; align-items:center; gap:14px; position:sticky; top:0; height:100vh}
-.rail .mark{width:34px;height:34px}
-.rail-ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--fg-3)}
-.rail-ico.on{background:var(--surface-2); color:var(--fg)}
-.rail .spacer{flex:1}
-.avatar{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center;font-size:12px;font-weight:600}
+/* ---------- shadcn primitives ---------- */
+.button{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;white-space:nowrap;
+  border-radius:calc(var(--radius) - 2px);font-size:13px;font-weight:500;height:2.25rem;padding:0 .875rem;
+  transition:background-color .15s,color .15s,border-color .15s,opacity .15s;border:1px solid transparent;
+}
+.button svg{width:16px;height:16px;flex:none}
+.button--default{background:var(--primary);color:var(--primary-foreground)}
+.button--default:hover{opacity:.9}
+.button--secondary{background:var(--secondary);color:var(--secondary-foreground)}
+.button--outline{border-color:var(--border);background:var(--background);color:var(--foreground)}
+.button--outline:hover{background:var(--accent);color:var(--accent-foreground)}
+.button--ghost{color:var(--foreground)}
+.button--ghost:hover{background:var(--accent);color:var(--accent-foreground)}
+.button--sm{height:2rem;padding:0 .75rem;font-size:12.5px;border-radius:calc(var(--radius) - 4px)}
+.button--icon{width:2.25rem;padding:0}
+.button--icon.button--sm{width:2rem}
 
-.side{border-right:1px solid var(--line-soft); padding:16px 14px 24px; position:sticky; top:0; height:100vh; overflow:auto; display:flex; flex-direction:column; gap:18px}
-.brand{display:flex; align-items:center; gap:9px; padding:2px 4px}
-.brand .word{font-family:var(--serif); font-size:19px; font-weight:600; letter-spacing:-.01em}
-.brand .tag{font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--fg-3); margin-top:-2px}
-.searchbox{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--fg-3);background:var(--surface)}
-.searchbox .kbd{margin-left:auto;font-size:11px;font-family:var(--mono);border:1px solid var(--line);border-radius:4px;padding:0 4px}
-.navlist{display:flex;flex-direction:column;gap:2px}
-.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--fg-2);width:100%;text-align:left;font-weight:500}
-.nav:hover{background:var(--surface-2)}
-.nav.on{background:var(--surface-2); color:var(--fg); font-weight:600}
-.nav .count{margin-left:auto;font-size:11px;color:var(--fg-3);font-family:var(--mono)}
-.nav-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--fg-3);padding:10px 10px 4px;font-weight:600}
-.budget{margin-top:auto;border:1px solid var(--line);border-radius:var(--r);padding:11px;background:var(--surface);display:flex;flex-direction:column;gap:7px}
-.bar{height:6px;border-radius:4px;background:var(--surface-2);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--accent)}
+.card{background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 1px 2px 0 oklch(0 0 0 / .04)}
+.card-header{display:flex;flex-direction:column;gap:.25rem;padding:1rem 1.25rem;border-bottom:1px solid var(--border)}
+.card-header.row{flex-direction:row;align-items:center;gap:.75rem}
+.card-title{font-size:14px;font-weight:600;line-height:1.2}
+.card-description{font-size:12.5px;color:var(--muted-foreground)}
+.card-content{padding:1.25rem}
+.card-content.flush{padding:0}
 
-.main{min-width:0; display:flex; flex-direction:column}
-.topbar{display:flex;align-items:center;gap:12px;padding:16px 0 14px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:var(--bg);z-index:5}
-.topbar h1{font-size:17px;font-weight:600}
-.topbar .sub{color:var(--fg-2);font-size:12.5px}
-.topbar .right{margin-left:auto;display:flex;gap:8px;align-items:center}
-.pad{padding:22px 0 60px;display:flex;flex-direction:column;gap:22px}
-.screen[hidden]{display:none!important}
+.badge{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;border:1px solid transparent;padding:.1rem .55rem;font-size:11.5px;font-weight:500;line-height:1.5;white-space:nowrap}
+.badge--secondary{background:var(--secondary);color:var(--secondary-foreground)}
+.badge--outline{border-color:var(--border);color:var(--muted-foreground)}
+.badge--success{background:color-mix(in oklab,var(--success) 14%,var(--background));color:var(--success);border-color:color-mix(in oklab,var(--success) 28%,transparent)}
+.badge--warning{background:color-mix(in oklab,var(--warning) 16%,var(--background));color:var(--warning);border-color:color-mix(in oklab,var(--warning) 30%,transparent)}
+.badge--destructive{background:color-mix(in oklab,var(--destructive) 12%,var(--background));color:var(--destructive);border-color:color-mix(in oklab,var(--destructive) 26%,transparent)}
+.badge--primary{background:color-mix(in oklab,var(--primary) 12%,var(--background));color:var(--primary);border-color:color-mix(in oklab,var(--primary) 28%,transparent)}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex:none}
 
-/* ---------- atoms ---------- */
-.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:500;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
-.btn:hover{border-color:var(--fg-3)}
-.btn.primary{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
-.btn.primary:hover{opacity:.9}
-.btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn.accent{color:#fff}
-:root[data-theme="dark"] .btn.accent{color:#1b1206}
-.btn.sm{padding:4px 9px;font-size:12.5px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
-.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--fg-2);background:var(--surface)}
-.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600;letter-spacing:.01em}
-.pill.ok{background:var(--ok-soft);color:var(--ok)}
-.pill.warn{background:var(--warn-soft);color:var(--warn)}
-.pill.crit{background:var(--crit-soft);color:var(--crit)}
-.pill.idle{background:var(--surface-2);color:var(--fg-2)}
-.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
-.muted{color:var(--fg-2)}
-.small{font-size:12.5px}
-.eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--fg-3);font-weight:600}
-.grid{display:grid;gap:14px}
-.sec-head{display:flex;align-items:baseline;gap:10px}
-.sec-head h2{font-size:14.5px;font-weight:600}
-hr.rule{border:0;border-top:1px solid var(--line-soft);margin:0}
+.input{display:flex;width:100%;height:2.25rem;border-radius:calc(var(--radius) - 2px);border:1px solid var(--input);background:var(--background);padding:0 .75rem;font:inherit;font-size:13px;color:inherit}
+.input::placeholder{color:var(--muted-foreground)}
+.textarea{width:100%;border:0;background:none;resize:none;font:inherit;color:inherit;padding:0}
+.textarea::placeholder{color:var(--muted-foreground)}
+.separator{height:1px;background:var(--border);border:0;margin:0}
+.kbd{font-family:var(--mono);font-size:10.5px;border:1px solid var(--border);border-radius:4px;padding:1px 4px;color:var(--muted-foreground);background:var(--background)}
+.avatar{width:2rem;height:2rem;border-radius:50%;background:var(--secondary);color:var(--secondary-foreground);display:grid;place-items:center;font-size:11.5px;font-weight:600;flex:none}
+.progress{height:.5rem;border-radius:999px;background:var(--secondary);overflow:hidden}
+.progress>i{display:block;height:100%;background:var(--primary);border-radius:999px}
 
-/* ---------- home ---------- */
-.hero{display:flex;flex-direction:column;gap:16px;padding:34px 0 10px;align-items:center;text-align:center}
-.hero h2{font-family:var(--serif);font-size:30px;font-weight:400;letter-spacing:-.02em}
-.hero .lede{color:var(--fg-2);max-width:52ch}
-.ask{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
-.ask .head{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line-soft);font-size:12.5px;color:var(--fg-2)}
-.ask textarea{width:100%;border:0;background:none;padding:14px 14px 8px;resize:none;font:inherit;color:inherit;min-height:74px}
-.ask textarea::placeholder{color:var(--fg-3)}
-.ask .foot{display:flex;align-items:center;gap:8px;padding:8px 10px 10px}
-.ask .foot .send{margin-left:auto;width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--on-ink);display:grid;place-items:center}
-.starters{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:680px}
-.starter{border:1px dashed var(--line);border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--fg-2);background:var(--surface-3)}
-.starter:hover{border-style:solid;color:var(--fg)}
+.tabs-list{display:inline-flex;align-items:center;gap:.25rem;background:var(--muted);padding:.2rem;border-radius:calc(var(--radius) - 2px)}
+.tabs-trigger{padding:.3rem .7rem;border-radius:calc(var(--radius) - 4px);font-size:12.5px;font-weight:500;color:var(--muted-foreground)}
+.tabs-trigger[aria-selected="true"]{background:var(--background);color:var(--foreground);box-shadow:0 1px 2px oklch(0 0 0 /.06)}
 
-.tiles{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
-.tile{padding:14px;display:flex;flex-direction:column;gap:5px}
-.tile .n{font-size:24px;font-weight:600;font-family:var(--mono);letter-spacing:-.02em}
-.tile .d{font-size:12px;color:var(--fg-3)}
-.spark{height:28px;width:100%}
-
-/* ---------- lists ---------- */
-.rows{display:flex;flex-direction:column}
-.row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line-soft);width:100%;text-align:left}
-.row:last-child{border-bottom:0}
-.row:hover{background:var(--surface-3)}
-.sq{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:15px}
-.row .nm{font-weight:600}
-.row .ds{color:var(--fg-2);font-size:12.5px}
-.row .meta{margin-left:auto;display:flex;align-items:center;gap:14px;flex:none}
-.cards{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
-.tplcard{padding:14px;display:flex;flex-direction:column;gap:8px;text-align:left;align-items:flex-start}
-.tplcard:hover{border-color:var(--accent-line)}
-
-/* ---------- builder ---------- */
-.builder{display:grid;grid-template-columns:minmax(0,1fr) 352px;gap:0;border-top:1px solid var(--line-soft)}
-.bform{padding:22px 22px 60px 0;display:flex;flex-direction:column;gap:20px;min-width:0}
-.bhead{display:flex;gap:14px;align-items:flex-start}
-.bhead .sq{width:46px;height:46px;border-radius:12px;font-size:20px}
-.field{display:grid;grid-template-columns:132px minmax(0,1fr);gap:12px;align-items:start}
-.field > label{color:var(--fg-2);padding-top:6px;font-size:13px}
-.field .val{display:flex;flex-wrap:wrap;gap:7px;align-items:center;min-width:0}
-.add{width:26px;height:26px;border-radius:7px;border:1px dashed var(--line);display:grid;place-items:center;color:var(--fg-3)}
-.add:hover{border-style:solid;color:var(--fg)}
-.instr{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:16px 18px;font-size:13.5px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.instr h4{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-3)}
-.instr p{color:var(--fg-2)}
-.instr ol{margin:0;padding-left:18px;color:var(--fg-2);display:flex;flex-direction:column;gap:5px}
-.btest{border-left:1px solid var(--line-soft);padding:16px 0 16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0;background:var(--surface-3)}
-.msg{border-radius:10px;padding:9px 12px;font-size:13px;max-width:92%}
-.msg.me{background:var(--surface-2);align-self:flex-end}
-.msg.ag{background:var(--surface);border:1px solid var(--line-soft)}
-.trace{font-family:var(--mono);font-size:11.5px;color:var(--fg-3);display:flex;align-items:center;gap:7px}
-.askmini{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:9px 11px;color:var(--fg-3);display:flex;align-items:center;gap:8px;margin-top:auto}
-
-/* ---------- run log ---------- */
-.steps{display:flex;flex-direction:column}
-.step{border-bottom:1px solid var(--line-soft)}
-.step:last-child{border-bottom:0}
-.step .bar2{display:flex;align-items:center;gap:11px;padding:10px 14px;width:100%;text-align:left}
-.step .bar2:hover{background:var(--surface-3)}
-.step .idx{font-family:var(--mono);font-size:11.5px;color:var(--fg-3);width:20px;flex:none}
-.step .tool{font-family:var(--mono);font-size:12.5px}
-.step .why{color:var(--fg-2);font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.step .rt{margin-left:auto;display:flex;align-items:center;gap:12px;flex:none;font-family:var(--mono);font-size:11.5px;color:var(--fg-3)}
-.payload{padding:0 14px 14px 45px;display:flex;flex-direction:column;gap:8px}
-pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11.5px;overflow-x:auto;color:var(--fg-2)}
 .table{width:100%;border-collapse:collapse;font-size:13px}
-.table th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--fg-3);padding:9px 14px;border-bottom:1px solid var(--line-soft);font-weight:600}
-.table td{padding:10px 14px;border-bottom:1px solid var(--line-soft)}
+.table th{text-align:left;font-size:12px;font-weight:500;color:var(--muted-foreground);padding:.6rem 1.25rem;border-bottom:1px solid var(--border);height:2.5rem}
+.table td{padding:.7rem 1.25rem;border-bottom:1px solid var(--border)}
 .table tr:last-child td{border-bottom:0}
 
-/* ---------- modal ---------- */
-.scrim{position:fixed;inset:0;background:rgba(12,14,20,.55);display:grid;place-items:center;z-index:40;padding:18px}
-.modal{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);width:min(560px,100%);max-height:86vh;overflow:auto}
-.modal .mh{padding:16px 18px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:10px}
-.modal .mb{padding:18px;display:flex;flex-direction:column;gap:16px}
-.modal .mf{padding:14px 18px;border-top:1px solid var(--line-soft);display:flex;gap:8px;align-items:center}
-.opt{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:11px;width:100%;text-align:left}
-.opt.on{border-color:var(--accent);background:var(--accent-soft)}
-.box{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--line);flex:none;margin-top:1px;display:grid;place-items:center;color:transparent}
-.opt.on .box{background:var(--accent);border-color:var(--accent);color:#fff}
-.ladder{display:flex;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.rung{flex:1;padding:10px;text-align:center;font-size:12.5px;border-right:1px solid var(--line);color:var(--fg-2)}
-.rung:last-child{border-right:0}
-.rung.on{background:var(--ink);color:var(--on-ink);font-weight:600}
+/* ---------- app shell ---------- */
+.shell{display:grid;grid-template-columns:16rem minmax(0,1fr);min-height:100%}
+.sidebar{
+  background:var(--sidebar);color:var(--sidebar-foreground);border-right:1px solid var(--sidebar-border);
+  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:.25rem;
+  padding-left:max(.75rem,env(safe-area-inset-left,0px));padding-right:.75rem;padding-block:.75rem;
+}
+.sidebar-header{display:flex;align-items:center;gap:.6rem;padding:.4rem .5rem .8rem}
+.sidebar-header .name{font-size:14px;font-weight:600;line-height:1.1}
+.sidebar-header .org{font-size:11.5px;color:var(--muted-foreground)}
+.sidebar-search{display:flex;align-items:center;gap:.5rem;height:2rem;border:1px solid var(--sidebar-border);border-radius:calc(var(--radius) - 2px);padding:0 .55rem;color:var(--muted-foreground);font-size:12.5px;background:var(--background);margin-bottom:.4rem}
+.sidebar-group{display:flex;flex-direction:column;gap:1px;margin-top:.4rem}
+.sidebar-group-label{font-size:11px;font-weight:500;color:var(--muted-foreground);padding:.4rem .5rem .25rem}
+.sidebar-menu-button{display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;height:2rem;padding:0 .5rem;border-radius:calc(var(--radius) - 2px);font-size:13px;font-weight:500;color:var(--sidebar-foreground)}
+.sidebar-menu-button:hover{background:var(--sidebar-accent);color:var(--sidebar-accent-foreground)}
+.sidebar-menu-button[data-active="true"]{background:var(--sidebar-accent);color:var(--sidebar-accent-foreground);font-weight:600}
+.sidebar-menu-button svg{width:16px;height:16px;flex:none;color:var(--muted-foreground)}
+.sidebar-menu-button[data-active="true"] svg{color:var(--primary)}
+.sidebar-menu-button .badge{margin-left:auto}
+.sidebar-footer{margin-top:auto;display:flex;flex-direction:column;gap:.6rem;padding-top:.6rem}
+.usage{border:1px solid var(--sidebar-border);border-radius:calc(var(--radius) - 2px);padding:.7rem;display:flex;flex-direction:column;gap:.45rem;background:var(--background)}
+.user{display:flex;align-items:center;gap:.6rem;padding:.35rem .4rem;border-radius:calc(var(--radius) - 2px)}
+.user:hover{background:var(--sidebar-accent)}
+
+.inset{display:flex;flex-direction:column;min-width:0;background:var(--background)}
+.header{
+  position:sticky;top:0;z-index:20;background:color-mix(in oklab,var(--background) 86%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:.75rem;height:3.5rem;flex:none;
+  padding-left:max(1.5rem,env(safe-area-inset-left,0px));padding-right:max(1.5rem,env(safe-area-inset-right,0px));
+}
+.header .crumbs{display:flex;align-items:center;gap:.4rem;font-size:13px;color:var(--muted-foreground);min-width:0}
+.header .crumbs strong{color:var(--foreground);font-weight:600}
+.header .crumbs svg{width:13px;height:13px;flex:none}
+.header .actions{margin-left:auto;display:flex;align-items:center;gap:.5rem;flex:none}
+.content{
+  flex:1;display:flex;flex-direction:column;
+  padding-left:max(1.5rem,env(safe-area-inset-left,0px));padding-right:max(1.5rem,env(safe-area-inset-right,0px));
+  padding-block:1.5rem 4rem;
+}
+.content.flush{padding:0}
+.wrap{width:100%;max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:1.25rem;min-width:0}
+.screen[hidden]{display:none!important}
+.page-title{display:flex;flex-direction:column;gap:.15rem}
+.page-title h2{font-size:20px;letter-spacing:-.02em}
+.grid{display:grid;gap:1rem}
+.row-between{display:flex;align-items:center;gap:.75rem}
+.stack{display:flex;flex-direction:column;gap:.35rem;min-width:0}
+
+/* ---------- home ---------- */
+.hero{display:flex;flex-direction:column;align-items:center;gap:1rem;text-align:center;padding:2.5rem 0 .5rem}
+.hero h2{font-size:28px;letter-spacing:-.03em;max-width:22ch}
+.hero .lede{color:var(--muted-foreground);max-width:56ch}
+.composer{width:100%;max-width:680px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 2px 10px oklch(0 0 0 /.05);overflow:hidden;text-align:left}
+.composer .bar{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted-foreground)}
+.composer .bar svg{width:13px;height:13px}
+.composer .body{padding:.9rem .9rem .5rem}
+.composer .body .textarea{min-height:4.5rem;font-size:14px}
+.composer .foot{display:flex;align-items:center;gap:.5rem;padding:.5rem .6rem .6rem}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+.stat{padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.2rem}
+.stat .label{font-size:12.5px;color:var(--muted-foreground);font-weight:500}
+.stat .value{font-size:26px;font-weight:600;letter-spacing:-.03em;font-family:var(--mono)}
+.stat .delta{font-size:12px;color:var(--muted-foreground)}
+.spark{height:2rem;width:100%;margin-top:.3rem}
+
+/* ---------- list rows ---------- */
+.list{display:flex;flex-direction:column}
+.list-item{display:flex;align-items:center;gap:.85rem;padding:.8rem 1.25rem;border-bottom:1px solid var(--border);width:100%;text-align:left}
+.list-item:last-child{border-bottom:0}
+.list-item:hover{background:var(--accent)}
+.icon-sq{width:2.25rem;height:2.25rem;border-radius:calc(var(--radius) - 2px);background:var(--secondary);color:var(--muted-foreground);display:grid;place-items:center;flex:none}
+.icon-sq svg{width:16px;height:16px}
+.list-item .title{font-size:13.5px;font-weight:600;line-height:1.3}
+.list-item .desc{font-size:12.5px;color:var(--muted-foreground);line-height:1.35}
+.list-item .right{margin-left:auto;display:flex;align-items:center;gap:.9rem;flex:none}
+.tpl{display:flex;flex-direction:column;gap:.5rem;align-items:flex-start;text-align:left;padding:1rem;transition:border-color .15s}
+.tpl:hover{border-color:color-mix(in oklab,var(--primary) 45%,var(--border))}
+
+/* ---------- builder ---------- */
+.builder{display:grid;grid-template-columns:minmax(0,1fr) 23rem;min-height:calc(100vh - 3.5rem)}
+.builder-main{padding:1.5rem;display:flex;flex-direction:column;gap:1.1rem;min-width:0;max-width:52rem}
+.builder-head{display:flex;gap:.9rem;align-items:flex-start}
+.builder-head .icon-sq{width:2.75rem;height:2.75rem;background:color-mix(in oklab,var(--primary) 12%,var(--background));color:var(--primary)}
+.builder-head .icon-sq svg{width:20px;height:20px}
+.field{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:.75rem;align-items:start}
+.field>label{font-size:13px;color:var(--muted-foreground);padding-top:.3rem}
+.field .controls{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;min-width:0}
+.add{width:1.6rem;height:1.6rem;border-radius:calc(var(--radius) - 4px);border:1px dashed var(--border);display:grid;place-items:center;color:var(--muted-foreground)}
+.add:hover{border-style:solid;color:var(--foreground);background:var(--accent)}
+.add svg{width:13px;height:13px}
+.prose{font-size:13.5px;display:flex;flex-direction:column;gap:.7rem}
+.prose h4{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted-foreground);font-weight:600}
+.prose p{color:var(--muted-foreground)}
+.prose ol{margin:0;padding-left:1.1rem;color:var(--muted-foreground);display:flex;flex-direction:column;gap:.3rem}
+.builder-aside{border-left:1px solid var(--border);background:var(--muted);display:flex;flex-direction:column;gap:.7rem;padding:1rem;min-width:0}
+.bubble{border-radius:calc(var(--radius) - 2px);padding:.55rem .75rem;font-size:13px;max-width:92%}
+.bubble--user{background:var(--secondary);align-self:flex-end}
+.bubble--agent{background:var(--card);border:1px solid var(--border)}
+.trace{font-family:var(--mono);font-size:11px;color:var(--muted-foreground);display:flex;align-items:center;gap:.4rem}
+.trace svg{width:12px;height:12px;flex:none}
+
+/* ---------- run trace ---------- */
+.step{border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:0}
+.step-bar{display:flex;align-items:center;gap:.7rem;padding:.65rem 1.25rem;width:100%;text-align:left}
+.step-bar:hover{background:var(--accent)}
+.step-bar .idx{font-family:var(--mono);font-size:11.5px;color:var(--muted-foreground);width:1.1rem;flex:none}
+.step-bar .tool{font-family:var(--mono);font-size:12.5px;flex:none}
+.step-bar .why{font-size:12.5px;color:var(--muted-foreground);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.step-bar .right{margin-left:auto;display:flex;align-items:center;gap:.85rem;flex:none;font-family:var(--mono);font-size:11.5px;color:var(--muted-foreground)}
+.payload{padding:0 1.25rem 1rem 2.95rem;display:flex;flex-direction:column;gap:.5rem}
+.payload .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted-foreground);font-weight:600}
+pre{margin:0;background:var(--muted);border:1px solid var(--border);border-radius:calc(var(--radius) - 2px);padding:.65rem .75rem;font-family:var(--mono);font-size:11.5px;overflow-x:auto;color:var(--muted-foreground)}
+
+/* ---------- dialog ---------- */
+.dialog-overlay{position:fixed;inset:0;background:oklch(0 0 0 /.55);display:grid;place-items:center;z-index:60;padding:1rem}
+.dialog-content{background:var(--popover);color:var(--popover-foreground);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 10px 38px oklch(0 0 0 /.25);width:min(34rem,100%);max-height:88vh;overflow:auto}
+.dialog-header{padding:1.1rem 1.25rem .5rem;display:flex;flex-direction:column;gap:.2rem}
+.dialog-title{font-size:16px;font-weight:600}
+.dialog-body{padding:.75rem 1.25rem;display:flex;flex-direction:column;gap:1.1rem}
+.dialog-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.option{display:flex;gap:.65rem;align-items:flex-start;border:1px solid var(--border);border-radius:calc(var(--radius) - 2px);padding:.7rem;width:100%;text-align:left}
+.option[data-on="true"]{border-color:var(--primary);background:color-mix(in oklab,var(--primary) 7%,var(--background))}
+.checkbox{width:1rem;height:1rem;border-radius:4px;border:1px solid var(--input);flex:none;margin-top:.1rem;display:grid;place-items:center;color:transparent}
+.checkbox svg{width:11px;height:11px}
+.option[data-on="true"] .checkbox{background:var(--primary);border-color:var(--primary);color:var(--primary-foreground)}
+.toggle-group{display:flex;border:1px solid var(--border);border-radius:calc(var(--radius) - 2px);overflow:hidden}
+.toggle-group button{flex:1;padding:.5rem;font-size:12.5px;border-right:1px solid var(--border);color:var(--muted-foreground)}
+.toggle-group button:last-child{border-right:0}
+.toggle-group button[aria-pressed="true"]{background:var(--secondary);color:var(--foreground);font-weight:600}
+.check-line{font-size:12.5px;display:flex;gap:.5rem;align-items:center;color:var(--muted-foreground)}
+.check-line svg{width:14px;height:14px;flex:none}
+.field-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
 
 /* ---------- tour ---------- */
 #tourLayer[hidden]{display:none!important}
-.spot{position:fixed;border-radius:12px;box-shadow:0 0 0 9999px rgba(10,12,18,.62), 0 0 0 2px var(--accent);z-index:50;pointer-events:none;transition:all .28s cubic-bezier(.4,0,.2,1)}
-.tcard{position:fixed;z-index:51;width:min(340px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:10px;transition:all .28s cubic-bezier(.4,0,.2,1)}
-.tcard h3{font-family:var(--serif);font-size:17px;font-weight:600}
-.tcard p{color:var(--fg-2);font-size:13.5px}
-.tcard .tfoot{display:flex;align-items:center;gap:8px;padding-top:4px}
-.tcard .prog{font-family:var(--mono);font-size:11.5px;color:var(--fg-3)}
-.tcard .ev{font-size:11.5px;color:var(--fg-3);border-left:2px solid var(--accent-line);padding-left:9px;font-style:italic;font-family:var(--serif)}
-.tblock{position:fixed;inset:0;z-index:49}
-.pips{display:flex;gap:4px;margin-right:auto}
-.pip{width:6px;height:6px;border-radius:50%;background:var(--line)}
-.pip.on{background:var(--accent)}
+.tour-block{position:fixed;inset:0;z-index:70}
+.tour-spot{position:fixed;border-radius:var(--radius);box-shadow:0 0 0 9999px oklch(0 0 0 /.6),0 0 0 2px var(--primary);z-index:71;pointer-events:none;transition:all .3s cubic-bezier(.4,0,.2,1)}
+.tour-card{position:fixed;z-index:72;width:min(22rem,calc(100vw - 2rem));background:var(--popover);color:var(--popover-foreground);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 12px 40px oklch(0 0 0 /.3);padding:1.1rem;display:flex;flex-direction:column;gap:.6rem;transition:all .3s cubic-bezier(.4,0,.2,1)}
+.tour-card h3{font-size:15px}
+.tour-card p{font-size:13px;color:var(--muted-foreground)}
+.tour-card .note{font-size:12px;color:var(--muted-foreground);border-left:2px solid var(--primary);padding-left:.6rem}
+.tour-card .foot{display:flex;align-items:center;gap:.4rem;padding-top:.25rem}
+.pips{display:flex;gap:.25rem;margin-right:auto}
+.pip{width:5px;height:5px;border-radius:50%;background:var(--border)}
+.pip[data-on="true"]{background:var(--primary)}
+.tour-launch{position:fixed;right:max(1.25rem,env(safe-area-inset-right,0px));bottom:max(1.25rem,env(safe-area-inset-bottom,0px));z-index:40;box-shadow:0 6px 20px oklch(0 0 0 /.18)}
 
-.tourbtn{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:30;box-shadow:var(--shadow)}
-
-@media (max-width:1040px){
+@media (max-width:1100px){
   .builder{grid-template-columns:minmax(0,1fr)}
-  .btest{border-left:0;border-top:1px solid var(--line-soft);padding:16px 0}
-  .bform{padding-right:0}
+  .builder-aside{border-left:0;border-top:1px solid var(--border)}
+  .builder-main{max-width:none}
 }
 @media (max-width:860px){
   .shell{grid-template-columns:minmax(0,1fr)}
-  .rail{display:none}
-  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line-soft);padding:14px 0}
-  .budget{margin-top:0}
+  .sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--sidebar-border)}
+  .sidebar-footer{margin-top:.6rem}
   .field{grid-template-columns:minmax(0,1fr)}
-  .field > label{padding-top:0}
-  .hero h2{font-size:24px}
+  .field>label{padding-top:0}
+  .hero h2{font-size:22px}
+  .header{padding-left:max(1rem,env(safe-area-inset-left,0px));padding-right:max(1rem,env(safe-area-inset-right,0px))}
+  .content{padding-left:max(1rem,env(safe-area-inset-left,0px));padding-right:max(1rem,env(safe-area-inset-right,0px))}
+  .builder-main{padding:1rem}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="logo" viewBox="0 0 32 32">
-      <rect width="32" height="32" rx="9" fill="var(--ink)"/>
-      <circle cx="16" cy="19" r="7.2" fill="var(--accent)"/>
-      <rect x="4" y="19" width="24" height="9" fill="var(--ink)"/>
-      <rect x="4" y="18.4" width="24" height="1.7" rx=".85" fill="var(--accent)"/>
-      <rect x="7.5" y="22.6" width="11" height="1.5" rx=".75" fill="var(--accent)" opacity=".5"/>
-    </symbol>
-    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z"/></symbol>
-    <symbol id="i-agent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 4v3M9 12.5h.01M15 12.5h.01M10 16h4"/></symbol>
-    <symbol id="i-skill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 4 8 4-8 4-8-4z"/><path d="m4 12 8 4 8-4M4 16l8 4 8-4"/></symbol>
-    <symbol id="i-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v5M15 3v5M6 8h12v4a6 6 0 0 1-12 0z"/><path d="M12 18v3"/></symbol>
-    <symbol id="i-run" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h13"/><circle cx="18.5" cy="12" r="2"/></symbol>
-    <symbol id="i-kb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h5a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H5zM19 5h-5a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h5z"/></symbol>
-    <symbol id="i-gov" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 5 6.5v5c0 4.3 2.9 7.6 7 9 4.1-1.4 7-4.7 7-9v-5z"/><path d="m9.3 12 1.9 1.9 3.5-3.6"/></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></symbol>
-    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
-    <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
-    <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
-    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></symbol>
-    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></symbol>
-  </defs>
-</svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="logo" viewBox="0 0 32 32">
+    <rect width="32" height="32" rx="8" fill="var(--sidebar-primary)"/>
+    <circle cx="16" cy="19" r="7" fill="var(--primary)"/>
+    <rect x="3" y="19" width="26" height="10" fill="var(--sidebar-primary)"/>
+    <rect x="6" y="18.3" width="20" height="1.6" rx=".8" fill="var(--primary)"/>
+    <rect x="9.5" y="22.4" width="13" height="1.4" rx=".7" fill="var(--primary)" opacity=".45"/>
+  </symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-agent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 4v3M9 12.5h.01M15 12.5h.01M10 16h4"/></symbol>
+  <symbol id="i-skill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 4 8 4-8 4-8-4z"/><path d="m4 12 8 4 8-4M4 16l8 4 8-4"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v5M15 3v5M6 8h12v4a6 6 0 0 1-12 0z"/><path d="M12 18v3"/></symbol>
+  <symbol id="i-run" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h13"/><circle cx="18.5" cy="12" r="2"/></symbol>
+  <symbol id="i-kb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h5a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H5zM19 5h-5a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h5z"/></symbol>
+  <symbol id="i-gov" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 5 6.5v5c0 4.3 2.9 7.6 7 9 4.1-1.4 7-4.7 7-9v-5z"/><path d="m9.3 12 1.9 1.9 3.5-3.6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.5 19.5a2 2 0 0 0 3 0"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></symbol>
+</defs></svg>
 
 <div class="shell">
-  <!-- icon rail -->
-  <nav class="rail" aria-label="Workspaces">
-    <svg class="mark" aria-label="Horizon"><use href="#logo"/></svg>
-    <div class="rail-ico on" title="Horizon"><svg width="18" height="18"><use href="#i-agent"/></svg></div>
-    <div class="rail-ico" title="Analytics"><svg width="18" height="18"><use href="#i-run"/></svg></div>
-    <div class="rail-ico" title="Library"><svg width="18" height="18"><use href="#i-kb"/></svg></div>
-    <div class="spacer"></div>
-    <button class="rail-ico" id="themeBtn" title="Switch theme"><svg width="18" height="18"><use href="#i-sun"/></svg></button>
-    <div class="avatar">PS</div>
-  </nav>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <svg width="32" height="32" aria-hidden="true"><use href="#logo"/></svg>
+      <div class="stack" style="gap:0">
+        <span class="name">Horizon</span>
+        <span class="org">Acme Corp</span>
+      </div>
+    </div>
+    <div class="sidebar-search"><svg width="14" height="14"><use href="#i-search"/></svg> Search<span class="kbd" style="margin-left:auto">⌘K</span></div>
 
-  <!-- sidebar -->
-  <aside class="side">
-    <div class="brand">
-      <svg width="30" height="30"><use href="#logo"/></svg>
-      <div>
-        <div class="word">Horizon</div>
-        <div class="tag">Acme Corp · Workspace</div>
-      </div>
+    <div class="sidebar-group" id="navlist">
+      <div class="sidebar-group-label">Build</div>
+      <button class="sidebar-menu-button" data-active="true" data-go="home"><svg><use href="#i-home"/></svg> Home</button>
+      <button class="sidebar-menu-button" data-go="agents"><svg><use href="#i-agent"/></svg> Agents <span class="badge badge--secondary">6</span></button>
+      <button class="sidebar-menu-button" data-go="skills"><svg><use href="#i-skill"/></svg> Skills <span class="badge badge--warning">3</span></button>
+      <button class="sidebar-menu-button" data-go="connectors"><svg><use href="#i-plug"/></svg> Connectors</button>
+      <button class="sidebar-menu-button" data-go="knowledge"><svg><use href="#i-kb"/></svg> Knowledge</button>
+      <div class="sidebar-group-label">Operate</div>
+      <button class="sidebar-menu-button" data-go="runs"><svg><use href="#i-run"/></svg> Runs</button>
+      <button class="sidebar-menu-button" data-go="governance"><svg><use href="#i-gov"/></svg> Governance</button>
     </div>
-    <div class="searchbox"><svg width="15" height="15"><use href="#i-search"/></svg> Search<span class="kbd">⌘K</span></div>
-    <div class="navlist" id="navlist">
-      <div class="nav-label">Build</div>
-      <button class="nav on" data-go="home"><svg width="17" height="17"><use href="#i-home"/></svg> Home</button>
-      <button class="nav" data-go="agents" id="navAgents"><svg width="17" height="17"><use href="#i-agent"/></svg> Agents <span class="count">6</span></button>
-      <button class="nav" data-go="skills" id="navSkills"><svg width="17" height="17"><use href="#i-skill"/></svg> Skills <span class="count">14</span></button>
-      <button class="nav" data-go="connectors"><svg width="17" height="17"><use href="#i-plug"/></svg> Connectors <span class="count">9</span></button>
-      <button class="nav" data-go="knowledge"><svg width="17" height="17"><use href="#i-kb"/></svg> Knowledge</button>
-      <div class="nav-label">Operate</div>
-      <button class="nav" data-go="runs" id="navRuns"><svg width="17" height="17"><use href="#i-run"/></svg> Runs <span class="count">248</span></button>
-      <button class="nav" data-go="governance" id="navGov"><svg width="17" height="17"><use href="#i-gov"/></svg> Governance</button>
-    </div>
-    <div class="budget" id="budgetCard">
-      <div style="display:flex;align-items:baseline;gap:6px">
-        <span class="eyebrow">October budget</span>
-        <span class="mono small" style="margin-left:auto">62%</span>
+
+    <div class="sidebar-footer">
+      <div class="usage" id="usageCard">
+        <div class="row-between">
+          <span class="xs" style="font-weight:500">October usage</span>
+          <span class="xs mono muted" style="margin-left:auto">62%</span>
+        </div>
+        <div class="progress"><i style="width:62%"></i></div>
+        <div class="xs muted mono">$12,400 of $20,000</div>
+        <div class="xs muted">Agents pause at the cap instead of overbilling.</div>
       </div>
-      <div class="bar"><i style="width:62%"></i></div>
-      <div class="small muted mono">$12,400 of $20,000</div>
-      <div class="small muted">Unused budget rolls over. Agents pause at 100% instead of overbilling.</div>
+      <div class="user">
+        <div class="avatar">PS</div>
+        <div class="stack" style="gap:0;min-width:0">
+          <span class="xs" style="font-weight:600">Prince S.</span>
+          <span class="xs muted">Workspace admin</span>
+        </div>
+        <svg width="16" height="16" class="muted" style="margin-left:auto"><use href="#i-dots"/></svg>
+      </div>
     </div>
   </aside>
 
-  <!-- main -->
-  <main class="main">
-    <div class="topbar">
-      <div>
-        <h1 id="crumb">Home</h1>
-        <div class="sub" id="crumbSub">Everything your team has automated, in one place.</div>
-      </div>
-      <div class="right" id="topActions"></div>
-    </div>
+  <div class="inset">
+    <header class="header">
+      <div class="crumbs"><span>Horizon</span><svg><use href="#i-chev"/></svg><strong id="crumb">Home</strong></div>
+      <div class="actions" id="topActions"></div>
+      <button class="button button--ghost button--icon button--sm" id="themeBtn" aria-label="Toggle theme"><svg><use href="#i-sun"/></svg></button>
+      <button class="button button--ghost button--icon button--sm" aria-label="Notifications"><svg><use href="#i-bell"/></svg></button>
+    </header>
 
     <!-- HOME -->
-    <section class="screen pad" id="s-home">
-      <div class="hero">
-        <h2>What should your agents handle today?</h2>
-        <p class="lede">Describe the job in plain language. Horizon drafts the agent, picks the tools it needs, and shows you exactly what it will be allowed to do before anything runs.</p>
-        <div class="ask" id="askBox">
-          <div class="head"><svg width="14" height="14"><use href="#i-agent"/></svg> Build mode · Horizon Core (default)</div>
-          <textarea id="askInput" placeholder="e.g. Every weekday at 9am, summarise overnight support tickets and post the top five to #cx-leads…"></textarea>
-          <div class="foot">
-            <span class="chip">＠ Attach</span>
-            <span class="chip">Model: Horizon Core</span>
-            <button class="send" aria-label="Send"><svg width="16" height="16"><use href="#i-up"/></svg></button>
+    <section class="screen content" id="s-home">
+      <div class="wrap">
+        <div class="hero">
+          <h2>What should your agents handle today?</h2>
+          <p class="lede">Describe the job in plain language. Horizon drafts the agent, picks the tools it needs, and shows you exactly what it will be allowed to do before anything runs.</p>
+          <div class="composer" id="composer">
+            <div class="bar"><svg><use href="#i-agent"/></svg> Build mode · Horizon Core</div>
+            <div class="body"><textarea class="textarea" id="askInput" placeholder="e.g. Every weekday at 9am, summarise overnight support tickets and post the top five to #cx-leads…"></textarea></div>
+            <div class="foot">
+              <span class="badge badge--outline">Attach</span>
+              <span class="badge badge--outline">Model: Horizon Core</span>
+              <button class="button button--default button--icon button--sm" id="composerSend" style="margin-left:auto;border-radius:999px" aria-label="Draft the agent"><svg><use href="#i-up"/></svg></button>
+            </div>
+          </div>
+          <div class="chips">
+            <button class="button button--outline button--sm" data-seed="Watch competitor pricing pages and tell me what changed">Watch competitor pricing</button>
+            <button class="button button--outline button--sm" data-seed="Draft the weekly revenue review deck from the warehouse">Weekly revenue deck</button>
+            <button class="button button--outline button--sm" data-seed="Triage inbound support email and route by severity">Triage support email</button>
           </div>
         </div>
-        <div class="starters">
-          <button class="starter" data-seed="Watch competitor pricing pages and tell me what changed">Watch competitor pricing</button>
-          <button class="starter" data-seed="Draft weekly revenue review deck from the finance warehouse">Weekly revenue deck</button>
-          <button class="starter" data-seed="Triage inbound support email and route by severity">Triage support email</button>
-        </div>
-      </div>
 
-      <hr class="rule">
+        <hr class="separator">
 
-      <div class="sec-head"><h2>This week</h2><span class="small muted">across 6 agents</span></div>
-      <div class="grid tiles">
-        <div class="card tile"><span class="eyebrow">Runs completed</span><span class="n">248</span><span class="d">+41 vs last week</span>
-          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,22 14,19 28,20 42,14 56,15 70,9 84,7 100,4" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))">
+          <div class="card stat"><span class="label">Runs completed</span><span class="value">248</span><span class="delta">+41 vs last week</span>
+            <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,22 14,19 28,20 42,14 56,15 70,9 84,7 100,4" fill="none" stroke="var(--chart-1)" stroke-width="2"/></svg></div>
+          <div class="card stat"><span class="label">Success rate</span><span class="value">96.4%</span><span class="delta">9 failures, each with a log</span>
+            <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,8 14,10 28,6 42,7 56,5 70,9 84,4 100,5" fill="none" stroke="var(--success)" stroke-width="2"/></svg></div>
+          <div class="card stat"><span class="label">Hours returned</span><span class="value">312</span><span class="delta">Against measured step baselines</span>
+            <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,24 14,21 28,18 42,17 56,12 70,11 84,6 100,3" fill="none" stroke="var(--chart-1)" stroke-width="2"/></svg></div>
+          <div class="card stat"><span class="label">Awaiting approval</span><span class="value">3</span><span class="delta">Oldest: 11 minutes</span>
+            <div style="margin-top:.45rem"><span class="badge badge--warning"><span class="dot"></span>Needs a human</span></div></div>
         </div>
-        <div class="card tile"><span class="eyebrow">Success rate</span><span class="n">96.4%</span><span class="d">9 failures, all with a log</span>
-          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,8 14,10 28,6 42,7 56,5 70,9 84,4 100,5" fill="none" stroke="var(--ok)" stroke-width="2"/></svg>
-        </div>
-        <div class="card tile"><span class="eyebrow">Hours returned</span><span class="n">312</span><span class="d">Measured against step baselines</span>
-          <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,24 14,21 28,18 42,17 56,12 70,11 84,6 100,3" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>
-        </div>
-        <div class="card tile"><span class="eyebrow">Awaiting approval</span><span class="n">3</span><span class="d">Oldest: 11 minutes</span>
-          <div style="margin-top:4px"><span class="pill warn"><span class="dot"></span>Needs a human</span></div>
-        </div>
-      </div>
 
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
-        <div class="card">
-          <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center"><h2 style="font-size:13.5px">Recent runs</h2><button class="btn sm" style="margin-left:auto" data-go="runs">Open log</button></div>
-          <div class="rows" id="homeRuns"></div>
-        </div>
-        <div class="card">
-          <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center"><h2 style="font-size:13.5px">Proposed by your agents</h2><button class="btn sm" style="margin-left:auto" data-go="skills">Review</button></div>
-          <div class="rows" id="homeProps"></div>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))">
+          <div class="card">
+            <div class="card-header row"><div class="stack" style="gap:.1rem"><span class="card-title">Recent runs</span><span class="card-description">Last 4 of 248</span></div>
+              <button class="button button--outline button--sm" style="margin-left:auto" data-go="runs">Open log</button></div>
+            <div class="card-content flush"><div class="list" id="homeRuns"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header row"><div class="stack" style="gap:.1rem"><span class="card-title">Proposed by your agents</span><span class="card-description">From last week's run history</span></div>
+              <button class="button button--outline button--sm" style="margin-left:auto" data-go="skills">Review</button></div>
+            <div class="card-content flush"><div class="list" id="homeProps"></div></div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- AGENTS -->
-    <section class="screen pad" id="s-agents" hidden>
-      <div class="sec-head"><h2>Start from a template</h2><span class="small muted">Pre-wired skills, tools and approval rules</span></div>
-      <div class="grid cards" id="tplGrid"></div>
-      <hr class="rule">
-      <div class="sec-head"><h2>Your agents</h2><span class="small muted">6 agents · 2 shared with the team</span></div>
-      <div class="card"><div class="rows" id="agentRows"></div></div>
+    <section class="screen content" id="s-agents" hidden>
+      <div class="wrap">
+        <div class="page-title"><h2>Agents</h2><span class="muted sm">Agents do real work with your tools, under rules you set.</span></div>
+        <div class="stack" style="gap:.6rem">
+          <div class="row-between"><h3 style="font-size:14px">Start from a template</h3><span class="muted xs">Skills, tool scopes and approval rules already set</span></div>
+          <div class="grid" id="tplGrid" style="grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))"></div>
+        </div>
+        <div class="card">
+          <div class="card-header row">
+            <span class="card-title">Your agents</span>
+            <div class="tabs-list" style="margin-left:auto"><button class="tabs-trigger" aria-selected="true">All</button><button class="tabs-trigger" aria-selected="false">Mine</button><button class="tabs-trigger" aria-selected="false">Shared</button></div>
+          </div>
+          <div class="card-content flush"><div class="list" id="agentRows"></div></div>
+        </div>
+      </div>
     </section>
 
     <!-- BUILDER -->
-    <section class="screen" id="s-builder" hidden>
+    <section class="screen content flush" id="s-builder" hidden>
       <div class="builder">
-        <div class="bform">
-          <div class="bhead">
-            <div class="sq" style="background:var(--accent-soft);color:var(--accent)">◑</div>
-            <div style="min-width:0">
-              <h2 style="font-size:19px" contenteditable="true" spellcheck="false">Overnight Support Digest</h2>
-              <p class="muted small" style="margin-top:3px">Reads overnight tickets, ranks what is escalating, and posts a five-line brief to #cx-leads.</p>
+        <div class="builder-main">
+          <div class="builder-head">
+            <div class="icon-sq"><svg><use href="#i-agent"/></svg></div>
+            <div class="stack">
+              <h2 style="font-size:18px" contenteditable="true" spellcheck="false">Overnight Support Digest</h2>
+              <p class="sm muted">Reads overnight tickets, ranks what is escalating, and posts a five-line brief to #cx-leads.</p>
             </div>
-            <div style="margin-left:auto;display:flex;gap:8px;flex:none"><span class="pill idle"><span class="dot"></span>Draft</span></div>
+            <span class="badge badge--secondary" style="margin-left:auto"><span class="dot"></span>Draft</span>
           </div>
 
-          <div class="field"><label for="f-owner">Owner &amp; team</label><div class="val">
-            <span class="chip">Prince S.</span><span class="chip">Customer Experience</span><button class="add" id="f-owner" aria-label="Add team"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
-          </div></div>
+          <div class="field"><label>Owner &amp; team</label><div class="controls">
+            <span class="badge badge--outline">Prince S.</span><span class="badge badge--outline">Customer Experience</span>
+            <button class="add" aria-label="Add team"><svg><use href="#i-plus"/></svg></button></div></div>
 
-          <div class="field" id="fModel"><label>Model</label><div class="val">
-            <span class="chip" style="border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)">Horizon Core · default</span>
-            <span class="chip">Fallback: Horizon Lite</span>
-            <span class="chip">Bring your own key</span>
-          </div></div>
+          <div class="field" id="fModel"><label>Model</label><div class="controls">
+            <span class="badge badge--primary">Horizon Core · default</span>
+            <span class="badge badge--outline">Fallback: Horizon Lite</span>
+            <span class="badge badge--outline">Bring your own key</span></div></div>
 
-          <div class="field" id="fConn"><label>Connectors</label><div class="val">
-            <span class="chip">Zendesk · read tickets</span>
-            <span class="chip">Slack · post to #cx-leads</span>
-            <span class="chip">Snowflake · read CX_MART</span>
-            <button class="add" aria-label="Add connector"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
-          </div></div>
+          <div class="field" id="fConn"><label>Connectors</label><div class="controls">
+            <span class="badge badge--outline">Zendesk · read tickets</span>
+            <span class="badge badge--outline">Slack · post to #cx-leads</span>
+            <span class="badge badge--outline">Snowflake · read CX_MART</span>
+            <button class="add" aria-label="Add connector"><svg><use href="#i-plus"/></svg></button></div></div>
 
-          <div class="field" id="fSkills"><label>Skills</label><div class="val">
-            <span class="chip">ticket-triage</span><span class="chip">severity-rubric</span><span class="chip">brief-writing</span><span class="chip">acme-tone</span>
-            <button class="add" aria-label="Add skill"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
-          </div></div>
+          <div class="field" id="fSkills"><label>Skills</label><div class="controls">
+            <span class="badge badge--outline">ticket-triage</span><span class="badge badge--outline">severity-rubric</span>
+            <span class="badge badge--outline">brief-writing</span><span class="badge badge--outline">acme-tone</span>
+            <button class="add" aria-label="Add skill"><svg><use href="#i-plus"/></svg></button></div></div>
 
-          <div class="field"><label>Knowledge</label><div class="val">
-            <span class="chip">CX Playbook v4</span><span class="chip">SLA matrix</span><button class="add" aria-label="Add knowledge"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
-          </div></div>
+          <div class="field"><label>Knowledge</label><div class="controls">
+            <span class="badge badge--outline">CX Playbook v4</span><span class="badge badge--outline">SLA matrix</span>
+            <button class="add" aria-label="Add knowledge"><svg><use href="#i-plus"/></svg></button></div></div>
 
-          <div class="field" id="fGuard"><label>Guardrails</label><div class="val">
-            <span class="chip" style="border-color:var(--accent-line)">Ask before posting externally</span>
-            <span class="chip">Cap 400 credits / run</span>
-            <span class="chip">No customer PII in output</span>
-            <button class="add" aria-label="Add guardrail"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
-          </div></div>
+          <div class="field" id="fGuard"><label>Guardrails</label><div class="controls">
+            <span class="badge badge--primary">Ask before posting externally</span>
+            <span class="badge badge--outline">Cap 400 credits / run</span>
+            <span class="badge badge--outline">No customer PII in output</span>
+            <button class="add" aria-label="Add guardrail"><svg><use href="#i-plus"/></svg></button></div></div>
 
-          <div class="instr" id="fInstr">
-            <h4>Instructions</h4>
-            <p>You write the overnight support brief that the CX leads read before standup. You are accurate before you are brief, and brief before you are interesting.</p>
-            <h4 style="margin-top:4px">Process</h4>
-            <ol>
-              <li>Pull every ticket created or reopened since 18:00 UTC yesterday.</li>
-              <li>Score each against the severity rubric. Never invent a severity — if the rubric is ambiguous, say so.</li>
-              <li>Group by product area, then rank by customers affected × severity.</li>
-              <li>Write five lines. Each names the product area, the count, and the one decision a lead has to make.</li>
-              <li>Attach the ticket IDs behind each line. A claim without an ID does not ship.</li>
-            </ol>
-            <h4 style="margin-top:4px">Never</h4>
-            <p>Never close, merge or reply to a ticket. Never name a customer in Slack. Never estimate a number you did not read.</p>
+          <div class="card" id="fInstr">
+            <div class="card-header"><span class="card-title">Instructions</span><span class="card-description">Versioned on every save</span></div>
+            <div class="card-content prose">
+              <p>You write the overnight support brief that the CX leads read before standup. You are accurate before you are brief, and brief before you are interesting.</p>
+              <h4>Process</h4>
+              <ol>
+                <li>Pull every ticket created or reopened since 18:00 UTC yesterday.</li>
+                <li>Score each against the severity rubric. Never invent a severity — if the rubric is ambiguous, say so.</li>
+                <li>Group by product area, then rank by customers affected × severity.</li>
+                <li>Write five lines. Each names the product area, the count, and the one decision a lead has to make.</li>
+                <li>Attach the ticket IDs behind each line. A claim without an ID does not ship.</li>
+              </ol>
+              <h4>Never</h4>
+              <p>Never close, merge or reply to a ticket. Never name a customer in Slack. Never estimate a number you did not read.</p>
+            </div>
           </div>
         </div>
 
-        <div class="btest">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span class="eyebrow">Test run</span>
-            <span class="small muted mono" style="margin-left:auto">38 credits</span>
-          </div>
-          <div class="msg me">Run it on last night's data.</div>
-          <div class="trace"><svg width="12" height="12"><use href="#i-check"/></svg> zendesk.search · 213 tickets · 1.9s</div>
-          <div class="trace"><svg width="12" height="12"><use href="#i-check"/></svg> skill: severity-rubric · 213 scored</div>
-          <div class="trace"><svg width="12" height="12"><use href="#i-check"/></svg> snowflake.query · CX_MART · 0.6s</div>
-          <div class="msg ag"><strong>Overnight brief — 213 tickets, 4 escalating</strong><br><br>1. <strong>Payments</strong> — 34 tickets, 11 customers. Checkout retries failing on UPI after 02:10. Decision: page the payments on-call now or wait for the 10am window.<br><br>2. <strong>Onboarding</strong> — 19 tickets, 6 customers. KYC doc upload rejects valid PDFs over 4MB…</div>
-          <div class="trace" style="color:var(--warn)"><svg width="12" height="12"><use href="#i-clock"/></svg> Paused — asking before it posts to #cx-leads</div>
-          <div class="askmini"><svg width="14" height="14"><use href="#i-agent"/></svg> Ask for a change…</div>
-        </div>
+        <aside class="builder-aside">
+          <div class="row-between"><span class="xs" style="font-weight:600">Test run</span><span class="xs mono muted" style="margin-left:auto">38 credits</span></div>
+          <div class="bubble bubble--user">Run it on last night's data.</div>
+          <div class="trace"><svg><use href="#i-check"/></svg> zendesk.search · 213 tickets · 1.9s</div>
+          <div class="trace"><svg><use href="#i-check"/></svg> skill: severity-rubric · 213 scored</div>
+          <div class="trace"><svg><use href="#i-check"/></svg> snowflake.query · CX_MART · 0.6s</div>
+          <div class="bubble bubble--agent"><strong>Overnight brief — 213 tickets, 4 escalating</strong><br><br>1. <strong>Payments</strong> — 34 tickets, 11 customers. Checkout retries failing after 02:10. Decision: page the payments on-call now or wait for the 10am window.<br><br>2. <strong>Onboarding</strong> — 19 tickets, 6 customers. KYC upload rejects valid PDFs over 4MB…</div>
+          <div class="trace" style="color:var(--warning)"><svg><use href="#i-clock"/></svg> Paused — asking before it posts to #cx-leads</div>
+          <div style="margin-top:auto"><input class="input" placeholder="Ask for a change…" aria-label="Ask for a change"></div>
+        </aside>
       </div>
     </section>
 
     <!-- SKILLS -->
-    <section class="screen pad" id="s-skills" hidden>
-      <div class="card" id="propCard">
-        <div style="padding:13px 15px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:10px">
-          <h2 style="font-size:13.5px">Proposed from last week's runs</h2>
-          <span class="pill warn" style="margin-left:auto"><span class="dot"></span>3 waiting</span>
+    <section class="screen content" id="s-skills" hidden>
+      <div class="wrap">
+        <div class="page-title"><h2>Skills</h2><span class="muted sm">Reusable instructions your agents share — and propose.</span></div>
+        <div class="card" id="propCard">
+          <div class="card-header row">
+            <div class="stack" style="gap:.1rem"><span class="card-title">Proposed from last week's runs</span>
+              <span class="card-description">Each arrives as a diff with the evidence behind it</span></div>
+            <span class="badge badge--warning" style="margin-left:auto"><span class="dot"></span>3 waiting</span>
+          </div>
+          <div class="card-content flush"><div class="list" id="propRows"></div></div>
         </div>
-        <div class="rows" id="propRows"></div>
+        <div class="card">
+          <div class="card-header row"><span class="card-title">Skill library</span>
+            <button class="button button--outline button--sm" style="margin-left:auto">New skill</button></div>
+          <div class="card-content flush"><div class="list" id="skillRows"></div></div>
+        </div>
       </div>
-      <div class="sec-head"><h2>Skill library</h2><span class="small muted">Versioned, reviewable, shared across agents</span></div>
-      <div class="card"><div class="rows" id="skillRows"></div></div>
     </section>
 
     <!-- CONNECTORS -->
-    <section class="screen pad" id="s-connectors" hidden>
-      <div class="sec-head"><h2>Connected systems</h2><span class="small muted">Every tool carries the scope it was granted — nothing is "full access"</span></div>
-      <div class="card"><div class="rows" id="connRows"></div></div>
-      <div class="sec-head"><h2>Available</h2><span class="small muted">142 more in the catalogue</span></div>
-      <div class="grid cards" id="connAvail"></div>
+    <section class="screen content" id="s-connectors" hidden>
+      <div class="wrap">
+        <div class="page-title"><h2>Connectors</h2><span class="muted sm">Every tool carries the scope it was granted. Nothing is "full access".</span></div>
+        <div class="card">
+          <div class="card-header row"><span class="card-title">Connected</span><span class="card-description" style="margin-left:auto">6 of 148 available</span></div>
+          <div class="card-content flush"><div class="list" id="connRows"></div></div>
+        </div>
+        <div class="stack" style="gap:.6rem">
+          <h3 style="font-size:14px">Available</h3>
+          <div class="grid" id="connAvail" style="grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))"></div>
+        </div>
+      </div>
     </section>
 
     <!-- KNOWLEDGE -->
-    <section class="screen pad" id="s-knowledge" hidden>
-      <div class="sec-head"><h2>Knowledge bases</h2><span class="small muted">Indexed sources agents can cite — answers link back to the paragraph</span></div>
-      <div class="card"><div class="rows" id="kbRows"></div></div>
+    <section class="screen content" id="s-knowledge" hidden>
+      <div class="wrap">
+        <div class="page-title"><h2>Knowledge</h2><span class="muted sm">Sources agents may cite — answers link back to the paragraph.</span></div>
+        <div class="card"><div class="card-content flush"><div class="list" id="kbRows"></div></div></div>
+      </div>
     </section>
 
     <!-- RUNS -->
-    <section class="screen pad" id="s-runs" hidden>
-      <div class="grid tiles" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
-        <div class="card tile"><span class="eyebrow">Completed</span><span class="n">239</span><span class="d">last 7 days</span></div>
-        <div class="card tile"><span class="eyebrow">Failed</span><span class="n" style="color:var(--crit)">9</span><span class="d">each with a full trace</span></div>
-        <div class="card tile"><span class="eyebrow">Awaiting approval</span><span class="n" style="color:var(--warn)">3</span><span class="d">resumable from Slack</span></div>
-        <div class="card tile"><span class="eyebrow">Credits spent</span><span class="n">18.4k</span><span class="d">$1.12 per completed run</span></div>
-      </div>
-      <div class="card" id="runTable">
-        <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:8px">
-          <h2 style="font-size:13.5px">Run log</h2>
-          <span class="chip sm">All agents</span><span class="chip sm">Last 7 days</span>
+    <section class="screen content" id="s-runs" hidden>
+      <div class="wrap">
+        <div class="page-title"><h2>Runs</h2><span class="muted sm">Every run, every step, every credit.</span></div>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(11rem,1fr))">
+          <div class="card stat"><span class="label">Completed</span><span class="value">239</span><span class="delta">last 7 days</span></div>
+          <div class="card stat"><span class="label">Failed</span><span class="value" style="color:var(--destructive)">9</span><span class="delta">each with a full trace</span></div>
+          <div class="card stat"><span class="label">Awaiting approval</span><span class="value" style="color:var(--warning)">3</span><span class="delta">resumable from Slack</span></div>
+          <div class="card stat"><span class="label">Credits spent</span><span class="value">18.4k</span><span class="delta">$1.12 per completed run</span></div>
         </div>
-        <div class="rows" id="runRows"></div>
+        <div class="card" id="runTable">
+          <div class="card-header row"><span class="card-title">Run log</span>
+            <div class="tabs-list" style="margin-left:auto"><button class="tabs-trigger" aria-selected="true">All</button><button class="tabs-trigger" aria-selected="false">Failed</button><button class="tabs-trigger" aria-selected="false">Held</button></div></div>
+          <div class="card-content flush"><div class="list" id="runRows"></div></div>
+        </div>
       </div>
     </section>
 
     <!-- RUN DETAIL -->
-    <section class="screen pad" id="s-run" hidden>
-      <div class="card" style="padding:14px 15px;display:flex;flex-wrap:wrap;gap:14px;align-items:center">
-        <div><div class="eyebrow">Agent</div><div style="font-weight:600">Overnight Support Digest</div></div>
-        <div><div class="eyebrow">Started</div><div class="mono small">27 Oct · 09:00:04 UTC</div></div>
-        <div><div class="eyebrow">Duration</div><div class="mono small">2m 41s</div></div>
-        <div><div class="eyebrow">Credits</div><div class="mono small">212</div></div>
-        <div><div class="eyebrow">Trigger</div><div class="small">Schedule · weekdays 09:00</div></div>
-        <div style="margin-left:auto;display:flex;gap:8px"><button class="btn sm">Replay</button><button class="btn sm">Export trace</button></div>
-      </div>
-      <div class="card" id="stepCard">
-        <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:9px">
-          <h2 style="font-size:13.5px">Step trace</h2>
-          <span class="small muted">Every tool call, its arguments, what came back, and what it cost</span>
+    <section class="screen content" id="s-run" hidden>
+      <div class="wrap">
+        <div class="card"><div class="card-content" style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center">
+          <div class="stack" style="gap:.1rem"><span class="xs muted">Agent</span><strong class="sm">Overnight Support Digest</strong></div>
+          <div class="stack" style="gap:.1rem"><span class="xs muted">Started</span><span class="sm mono">27 Oct · 09:00:04 UTC</span></div>
+          <div class="stack" style="gap:.1rem"><span class="xs muted">Duration</span><span class="sm mono">2m 41s</span></div>
+          <div class="stack" style="gap:.1rem"><span class="xs muted">Credits</span><span class="sm mono">212</span></div>
+          <div class="stack" style="gap:.1rem"><span class="xs muted">Trigger</span><span class="sm">Schedule · weekdays 09:00</span></div>
+          <div style="margin-left:auto;display:flex;gap:.5rem"><button class="button button--outline button--sm">Replay</button><button class="button button--outline button--sm">Export trace</button></div>
+        </div></div>
+        <div class="card" id="stepCard">
+          <div class="card-header"><span class="card-title">Step trace</span>
+            <span class="card-description">Every tool call, its arguments, what came back, and what it cost</span></div>
+          <div class="card-content flush"><div id="stepList"></div></div>
         </div>
-        <div class="steps" id="stepList"></div>
       </div>
     </section>
 
     <!-- GOVERNANCE -->
-    <section class="screen pad" id="s-governance" hidden>
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
-        <div class="card" id="budgetPanel">
-          <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft)"><h2 style="font-size:13.5px">Budgets by role</h2></div>
-          <div style="padding:14px;display:flex;flex-direction:column;gap:14px" id="budgetRows"></div>
+    <section class="screen content" id="s-governance" hidden>
+      <div class="wrap">
+        <div class="page-title"><h2>Governance</h2><span class="muted sm">Budgets, approval rules and the audit trail.</span></div>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(19rem,1fr))">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Budgets by role</span><span class="card-description">Unused budget rolls over</span></div>
+            <div class="card-content" id="budgetRows" style="display:flex;flex-direction:column;gap:1rem"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Approval rules</span><span class="card-description">Evaluated against the arguments of each tool call</span></div>
+            <div class="card-content flush"><div class="list" id="ruleRows"></div></div>
+          </div>
         </div>
-        <div class="card">
-          <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft)"><h2 style="font-size:13.5px">Approval rules</h2></div>
-          <div class="rows" id="ruleRows"></div>
+        <div class="card" id="auditCard">
+          <div class="card-header row"><span class="card-title">Audit trail</span>
+            <span class="card-description" style="margin-left:auto">Immutable · exports to your SIEM</span></div>
+          <div class="card-content flush" style="overflow-x:auto">
+            <table class="table"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Object</th></tr></thead><tbody id="auditRows"></tbody></table>
+          </div>
         </div>
-      </div>
-      <div class="card" id="auditCard">
-        <div style="padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:8px">
-          <h2 style="font-size:13.5px">Audit trail</h2><span class="small muted">Immutable · exports to your SIEM</span>
-        </div>
-        <div style="overflow-x:auto"><table class="table"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Object</th></tr></thead><tbody id="auditRows"></tbody></table></div>
       </div>
     </section>
-  </main>
+  </div>
 </div>
 
-<button class="btn accent tourbtn" id="tourBtn">Start guided tour</button>
+<button class="button button--default tour-launch" id="tourBtn">Start guided tour</button>
+<div id="dialogHost" hidden></div>
 
-<!-- deploy modal -->
-<div id="deployModal" hidden></div>
-
-<!-- tour -->
 <div id="tourLayer" hidden>
-  <div class="tblock" id="tblock"></div>
-  <div class="spot" id="spot"></div>
-  <div class="tcard" id="tcard">
-    <div class="eyebrow" id="tStage"></div>
+  <div class="tour-block"></div>
+  <div class="tour-spot" id="spot"></div>
+  <div class="tour-card" id="tcard">
+    <span class="xs muted" id="tStage" style="font-weight:600"></span>
     <h3 id="tTitle"></h3>
     <p id="tBody"></p>
-    <div class="ev" id="tEv"></div>
-    <div class="tfoot">
+    <div class="note" id="tNote"></div>
+    <div class="foot">
       <div class="pips" id="tPips"></div>
-      <button class="btn sm" id="tSkip">Exit</button>
-      <button class="btn sm" id="tBack">Back</button>
-      <button class="btn sm accent" id="tNext">Next</button>
+      <button class="button button--ghost button--sm" id="tSkip">Exit</button>
+      <button class="button button--outline button--sm" id="tBack">Back</button>
+      <button class="button button--default button--sm" id="tNext">Next</button>
     </div>
   </div>
 </div>
@@ -566,9 +675,8 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
   "use strict";
   var $ = function(s){ return document.querySelector(s); };
   var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
-  var el = function(tag, cls, html){ var n=document.createElement(tag); if(cls) n.className=cls; if(html!=null) n.innerHTML=html; return n; };
+  var ico = function(id){ return '<svg><use href="#'+id+'"/></svg>'; };
 
-  /* ---------- theme ---------- */
   $("#themeBtn").addEventListener("click", function(){
     var r = document.documentElement;
     r.setAttribute("data-theme", r.getAttribute("data-theme") === "dark" ? "light" : "dark");
@@ -576,12 +684,12 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
 
   /* ---------- data ---------- */
   var AGENTS = [
-    {n:"Overnight Support Digest", d:"Ranks overnight tickets, posts the five that need a decision", i:"◑", st:"live", runs:"21/week", ch:"Slack · Schedule"},
-    {n:"Pricing Watch", d:"Reads 11 competitor pricing pages, reports only what changed", i:"◈", st:"live", runs:"48/week", ch:"Email · Schedule"},
-    {n:"Revenue Review Builder", d:"Builds the Monday deck from the finance warehouse", i:"▣", st:"live", runs:"1/week", ch:"Slack"},
-    {n:"Contract Reader", d:"Extracts obligations and renewal dates into the CLM record", i:"❖", st:"review", runs:"paused", ch:"API"},
-    {n:"Field Ops Dispatcher", d:"Routes site complaints to the nearest engineer by SLA", i:"◆", st:"live", runs:"96/week", ch:"WhatsApp"},
-    {n:"Onboarding Buddy", d:"Answers new-joiner questions from the HR knowledge base", i:"●", st:"draft", runs:"—", ch:"Slack"}
+    {n:"Overnight Support Digest", d:"Ranks overnight tickets, posts the five that need a decision", st:"live", runs:"21/week", ch:"Slack · Schedule"},
+    {n:"Pricing Watch", d:"Reads 11 competitor pricing pages, reports only what changed", st:"live", runs:"48/week", ch:"Email · Schedule"},
+    {n:"Revenue Review Builder", d:"Builds the Monday deck from the finance warehouse", st:"live", runs:"1/week", ch:"Slack"},
+    {n:"Contract Reader", d:"Extracts obligations and renewal dates into the CLM record", st:"review", runs:"paused", ch:"API"},
+    {n:"Field Ops Dispatcher", d:"Routes site complaints to the nearest engineer by SLA", st:"live", runs:"96/week", ch:"WhatsApp"},
+    {n:"Onboarding Buddy", d:"Answers new-joiner questions from the HR knowledge base", st:"draft", runs:"—", ch:"Slack"}
   ];
   var TEMPLATES = [
     {n:"Support Digest", d:"Reads your helpdesk overnight and briefs the leads before standup.", t:"Customer Experience", s:"4 skills · 3 tools"},
@@ -600,7 +708,7 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
     {t:"zendesk.search_tickets", w:"created_at > 2026-10-26T18:00Z", st:"ok", d:"1.9s", c:12,
      args:'{\n  "query": "created>2026-10-26T18:00 OR reopened>2026-10-26T18:00",\n  "scope": "org:acme",\n  "fields": ["id","subject","priority","product_area"]\n}',
      out:"213 tickets returned · 4 flagged escalating · 0 redacted fields requested"},
-    {t:"skill: severity-rubric", w:"Scored 213 tickets against the rubric, 6 marked ambiguous", st:"ok", d:"11.4s", c:96,
+    {t:"skill: severity-rubric", w:"Scored 213 tickets, 6 marked ambiguous", st:"ok", d:"11.4s", c:96,
      args:'{\n  "skill": "severity-rubric@v7",\n  "input_count": 213,\n  "model": "horizon-core"\n}',
      out:"P1: 4 · P2: 27 · P3: 118 · P4: 58 · ambiguous: 6 (listed rather than guessed)"},
     {t:"snowflake.query", w:"CX_MART.customer_tier — read-only role", st:"ok", d:"0.6s", c:8,
@@ -617,7 +725,7 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
      out:"Delivered · 9 readers in first 4 minutes · thread opened by payments on-call"}
   ];
   var PROPOSALS = [
-    {k:"New skill", n:"upi-failure-pattern", d:"Seen 6 times: you always check the payments dashboard before writing the P1 line.", a:"Overnight Support Digest"},
+    {k:"New skill", n:"payment-failure-pattern", d:"Seen 6 times: you always check the payments dashboard before writing the P1 line.", a:"Overnight Support Digest"},
     {k:"Skill fix", n:"severity-rubric → v8", d:"Rubric misses reopened tickets older than 30 days. Patch written, 12 lines.", a:"Field Ops Dispatcher"},
     {k:"Tool access", n:"Grafana · read dashboards", d:"Needed to confirm the incident window before escalating. Read-only.", a:"Overnight Support Digest"}
   ];
@@ -636,7 +744,7 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
     {n:"WhatsApp Business", s:"Send templated messages only", st:"warn", a:"1 agent"},
     {n:"Salesforce", s:"Write to Opportunity — per-field RBAC pending", st:"warn", a:"0 agents"}
   ];
-  var CONN_AVAIL = ["Jira","HubSpot","SAP","Notion","GitHub","Tally","Freshdesk","Exotel"];
+  var CONN_AVAIL = ["Jira","HubSpot","SAP","Notion","GitHub","Freshdesk"];
   var KBS = [
     {n:"CX Playbook v4", s:"148 pages · synced from Drive 2 hours ago", u:"3 agents"},
     {n:"SLA matrix", s:"1 sheet · synced nightly", u:"4 agents"},
@@ -662,246 +770,233 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
   ];
 
   /* ---------- render ---------- */
-  function stPill(st){
-    var m = {ok:["ok","Completed"], warn:["warn","Approval"], crit:["crit","Failed"],
-             live:["ok","Live"], draft:["idle","Draft"], review:["warn","In review"]};
+  function badge(st){
+    var m = {ok:["success","Completed"], warn:["warning","Approval"], crit:["destructive","Failed"],
+             live:["success","Live"], draft:["secondary","Draft"], review:["warning","In review"]};
     var v = m[st] || m.ok;
-    return '<span class="pill '+v[0]+'"><span class="dot"></span>'+v[1]+'</span>';
+    return '<span class="badge badge--'+v[0]+'"><span class="dot"></span>'+v[1]+'</span>';
   }
+  var primarySq = 'style="background:color-mix(in oklab,var(--primary) 12%,var(--background));color:var(--primary)"';
 
   $("#agentRows").innerHTML = AGENTS.map(function(a){
-    return '<button class="row" data-open="builder"><span class="sq" style="background:var(--surface-2)">'+a.i+'</span>'+
-      '<span style="min-width:0"><span class="nm">'+a.n+'</span><br><span class="ds">'+a.d+'</span></span>'+
-      '<span class="meta"><span class="small muted">'+a.ch+'</span><span class="small muted mono">'+a.runs+'</span>'+stPill(a.st)+
-      '<svg width="15" height="15" style="color:var(--fg-3)"><use href="#i-chev"/></svg></span></button>';
+    return '<button class="list-item" data-go="builder"><span class="icon-sq">'+ico("i-agent")+'</span>'+
+      '<span class="stack"><span class="title">'+a.n+'</span><span class="desc">'+a.d+'</span></span>'+
+      '<span class="right"><span class="xs muted">'+a.ch+'</span><span class="xs mono muted">'+a.runs+'</span>'+badge(a.st)+
+      '<svg width="15" height="15" class="muted"><use href="#i-chev"/></svg></span></button>';
   }).join("");
 
   $("#tplGrid").innerHTML = TEMPLATES.map(function(t){
-    return '<button class="card tplcard" data-open="builder"><span class="eyebrow">'+t.t+'</span>'+
-      '<strong style="font-size:14.5px">'+t.n+'</strong><span class="small muted">'+t.d+'</span>'+
-      '<span class="chip" style="margin-top:4px">'+t.s+'</span></button>';
+    return '<button class="card tpl" data-go="builder"><span class="badge badge--secondary">'+t.t+'</span>'+
+      '<strong style="font-size:14px">'+t.n+'</strong><span class="xs muted">'+t.d+'</span>'+
+      '<span class="xs mono muted">'+t.s+'</span></button>';
   }).join("");
 
   function runRow(r, compact){
-    return '<button class="row" data-open="run"><span class="sq" style="background:var(--surface-2)">'+
-      (r.st==="crit"?"✕":r.st==="warn"?"⏸":"✓")+'</span>'+
-      '<span style="min-width:0"><span class="nm">'+r.a+'</span><br><span class="ds">'+r.w+'</span></span>'+
-      '<span class="meta">'+(compact?"":'<span class="small muted mono">'+r.t+'</span><span class="small muted mono">'+r.c+' cr</span>')+
-      '<span class="small muted">'+r.ago+'</span>'+stPill(r.st)+'</span></button>';
+    var mark = r.st==="crit" ? "i-x" : r.st==="warn" ? "i-clock" : "i-check";
+    return '<button class="list-item" data-go="run"><span class="icon-sq">'+ico(mark)+'</span>'+
+      '<span class="stack"><span class="title">'+r.a+'</span><span class="desc">'+r.w+'</span></span>'+
+      '<span class="right">'+(compact?"":'<span class="xs mono muted">'+r.t+'</span><span class="xs mono muted">'+r.c+' cr</span>')+
+      '<span class="xs muted">'+r.ago+'</span>'+badge(r.st)+'</span></button>';
   }
   $("#runRows").innerHTML = RUNS.concat(RUNS).map(function(r){ return runRow(r,false); }).join("");
   $("#homeRuns").innerHTML = RUNS.slice(0,4).map(function(r){ return runRow(r,true); }).join("");
 
-  function propRow(p){
-    return '<div class="row"><span class="sq" style="background:var(--accent-soft);color:var(--accent)">✦</span>'+
-      '<span style="min-width:0"><span class="nm">'+p.k+': '+p.n+'</span><br><span class="ds">'+p.d+'</span>'+
-      '<br><span class="small" style="color:var(--fg-3)">from '+p.a+'</span></span>'+
-      '<span class="meta"><button class="btn sm">Decline</button><button class="btn sm primary">Review diff</button></span></div>';
-  }
-  $("#propRows").innerHTML = PROPOSALS.map(propRow).join("");
+  $("#propRows").innerHTML = PROPOSALS.map(function(p){
+    return '<div class="list-item"><span class="icon-sq" '+primarySq+'>'+ico("i-skill")+'</span>'+
+      '<span class="stack"><span class="title">'+p.k+': '+p.n+'</span><span class="desc">'+p.d+'</span>'+
+      '<span class="xs muted">from '+p.a+'</span></span>'+
+      '<span class="right"><button class="button button--ghost button--sm">Decline</button>'+
+      '<button class="button button--outline button--sm">Review diff</button></span></div>';
+  }).join("");
   $("#homeProps").innerHTML = PROPOSALS.map(function(p){
-    return '<div class="row"><span class="sq" style="background:var(--accent-soft);color:var(--accent)">✦</span>'+
-      '<span style="min-width:0"><span class="nm">'+p.n+'</span><br><span class="ds">'+p.k+' · '+p.a+'</span></span>'+
-      '<span class="meta"><button class="btn sm">Review</button></span></div>';
+    return '<div class="list-item"><span class="icon-sq" '+primarySq+'>'+ico("i-skill")+'</span>'+
+      '<span class="stack"><span class="title">'+p.n+'</span><span class="desc">'+p.k+' · '+p.a+'</span></span>'+
+      '<span class="right"><button class="button button--outline button--sm">Review</button></span></div>';
   }).join("");
 
   $("#skillRows").innerHTML = SKILLS.map(function(s){
-    return '<button class="row"><span class="sq" style="background:var(--surface-2)">◧</span>'+
-      '<span style="min-width:0"><span class="nm">'+s.n+' <span class="mono small muted">'+s.v+'</span></span><br><span class="ds">'+s.d+'</span></span>'+
-      '<span class="meta"><span class="small muted">'+s.o+'</span><span class="chip">'+s.u+'</span></span></button>';
+    return '<button class="list-item"><span class="icon-sq">'+ico("i-skill")+'</span>'+
+      '<span class="stack"><span class="title">'+s.n+' <span class="mono muted">'+s.v+'</span></span><span class="desc">'+s.d+'</span></span>'+
+      '<span class="right"><span class="xs muted">'+s.o+'</span><span class="badge badge--secondary">'+s.u+'</span></span></button>';
   }).join("");
 
   $("#connRows").innerHTML = CONNS.map(function(c){
-    return '<button class="row"><span class="sq" style="background:var(--surface-2)">⬡</span>'+
-      '<span style="min-width:0"><span class="nm">'+c.n+'</span><br><span class="ds">'+c.s+'</span></span>'+
-      '<span class="meta"><span class="small muted">'+c.a+'</span>'+
-      (c.st==="warn"?'<span class="pill warn"><span class="dot"></span>Scope review</span>':'<span class="pill ok"><span class="dot"></span>Scoped</span>')+
-      '</span></button>';
+    return '<button class="list-item"><span class="icon-sq">'+ico("i-plug")+'</span>'+
+      '<span class="stack"><span class="title">'+c.n+'</span><span class="desc">'+c.s+'</span></span>'+
+      '<span class="right"><span class="xs muted">'+c.a+'</span>'+
+      (c.st==="warn"?'<span class="badge badge--warning"><span class="dot"></span>Scope review</span>'
+                    :'<span class="badge badge--success"><span class="dot"></span>Scoped</span>')+'</span></button>';
   }).join("");
   $("#connAvail").innerHTML = CONN_AVAIL.map(function(c){
-    return '<button class="card tplcard" style="flex-direction:row;align-items:center;gap:10px"><span class="sq" style="background:var(--surface-2)">⬡</span><strong>'+c+'</strong><span class="add" style="margin-left:auto"><svg width="13" height="13"><use href="#i-plus"/></svg></span></button>';
+    return '<button class="card list-item"><span class="icon-sq">'+ico("i-plug")+'</span>'+
+      '<span class="title">'+c+'</span><span class="right"><span class="add">'+ico("i-plus")+'</span></span></button>';
   }).join("");
 
   $("#kbRows").innerHTML = KBS.map(function(k){
-    return '<button class="row"><span class="sq" style="background:var(--surface-2)">▤</span>'+
-      '<span style="min-width:0"><span class="nm">'+k.n+'</span><br><span class="ds">'+k.s+'</span></span>'+
-      '<span class="meta"><span class="chip">'+k.u+'</span></span></button>';
+    return '<button class="list-item"><span class="icon-sq">'+ico("i-kb")+'</span>'+
+      '<span class="stack"><span class="title">'+k.n+'</span><span class="desc">'+k.s+'</span></span>'+
+      '<span class="right"><span class="badge badge--secondary">'+k.u+'</span></span></button>';
   }).join("");
 
   $("#stepList").innerHTML = STEPS.map(function(s,i){
-    var ic = s.st==="warn" ? '<span class="pill warn"><span class="dot"></span>Held</span>' : '<span class="pill ok"><span class="dot"></span>OK</span>';
-    return '<div class="step"><button class="bar2" data-step="'+i+'">'+
+    var b = s.st==="warn" ? '<span class="badge badge--warning"><span class="dot"></span>Held</span>'
+                          : '<span class="badge badge--success"><span class="dot"></span>OK</span>';
+    return '<div class="step"><button class="step-bar" data-step="'+i+'">'+
       '<span class="idx">'+(i+1)+'</span><span class="tool">'+s.t+'</span><span class="why">'+s.w+'</span>'+
-      '<span class="rt"><span>'+s.d+'</span><span>'+s.c+' cr</span>'+ic+'</span></button>'+
+      '<span class="right"><span>'+s.d+'</span><span>'+s.c+' cr</span>'+b+'</span></button>'+
       '<div class="payload" hidden id="pl'+i+'">'+
-      '<div class="eyebrow">Arguments</div><pre>'+s.args.replace(/</g,"&lt;")+'</pre>'+
-      '<div class="eyebrow">Result</div><pre>'+s.out+'</pre></div></div>';
+      '<span class="lbl">Arguments</span><pre>'+s.args.replace(/</g,"&lt;")+'</pre>'+
+      '<span class="lbl">Result</span><pre>'+s.out+'</pre></div></div>';
   }).join("");
 
   $("#budgetRows").innerHTML = BUDGETS.map(function(b){
-    return '<div><div style="display:flex;align-items:baseline;gap:8px"><strong style="font-size:13px">'+b.r+'</strong>'+
-      '<span class="mono small muted" style="margin-left:auto">'+b.u+'%</span></div>'+
-      '<div class="bar" style="margin:6px 0 4px"><i style="width:'+b.u+'%;background:'+(b.u>70?"var(--warn)":"var(--accent)")+'"></i></div>'+
-      '<div class="small muted mono">'+b.s+'</div></div>';
+    return '<div class="stack" style="gap:.35rem"><div class="row-between"><strong class="sm">'+b.r+'</strong>'+
+      '<span class="xs mono muted" style="margin-left:auto">'+b.u+'%</span></div>'+
+      '<div class="progress"><i style="width:'+b.u+'%;'+(b.u>70?'background:var(--warning)':'')+'"></i></div>'+
+      '<span class="xs mono muted">'+b.s+'</span></div>';
   }).join("");
 
   $("#ruleRows").innerHTML = RULES.map(function(r){
-    return '<div class="row"><span style="min-width:0"><span class="nm">'+r.n+'</span><br><span class="ds">'+r.d+'</span></span>'+
-      '<span class="meta">'+(r.w==="Blocked"?'<span class="pill crit"><span class="dot"></span>Blocked</span>':'<span class="chip">'+r.w+'</span>')+'</span></div>';
+    return '<div class="list-item"><span class="stack"><span class="title">'+r.n+'</span><span class="desc">'+r.d+'</span></span>'+
+      '<span class="right">'+(r.w==="Blocked"?'<span class="badge badge--destructive"><span class="dot"></span>Blocked</span>'
+                                             :'<span class="badge badge--outline">'+r.w+'</span>')+'</span></div>';
   }).join("");
 
   $("#auditRows").innerHTML = AUDIT.map(function(a){
-    return '<tr><td class="mono small">'+a.t+'</td><td>'+a.w+'</td><td>'+a.a+'</td><td class="mono small muted">'+a.o+'</td></tr>';
+    return '<tr><td class="mono xs">'+a.t+'</td><td>'+a.w+'</td><td>'+a.a+'</td><td class="mono xs muted">'+a.o+'</td></tr>';
   }).join("");
 
   /* ---------- navigation ---------- */
-  var META = {
-    home:       ["Home","Everything your team has automated, in one place."],
-    agents:     ["Agents","Agents do real work with your tools, under rules you set."],
-    builder:    ["Overnight Support Digest","Draft · not deployed · changes are versioned"],
-    skills:     ["Skills","Reusable instructions your agents share — and propose."],
-    connectors: ["Connectors","Each tool carries the scope it was granted."],
-    knowledge:  ["Knowledge","Sources agents may cite, with the citation attached."],
-    runs:       ["Runs","Every run, every step, every credit."],
-    run:        ["Run 8f21","Overnight Support Digest · 27 Oct 09:00 UTC"],
-    governance: ["Governance","Budgets, approval rules and the audit trail."]
-  };
+  var CRUMB = {home:"Home", agents:"Agents", builder:"Overnight Support Digest", skills:"Skills",
+               connectors:"Connectors", knowledge:"Knowledge", runs:"Runs", run:"Run 8f21", governance:"Governance"};
   var ACTIONS = {
-    agents: '<button class="btn sm">Browse templates</button><button class="btn sm accent" data-open="builder"><svg width="13" height="13"><use href="#i-plus"/></svg> Create agent</button>',
-    builder: '<button class="btn sm">Version history</button><button class="btn sm primary" id="deployBtn">Deploy</button>',
-    skills: '<button class="btn sm accent"><svg width="13" height="13"><use href="#i-plus"/></svg> New skill</button>',
-    connectors: '<button class="btn sm">Manage scopes</button>',
-    runs: '<button class="btn sm">Export</button>',
-    run: '<button class="btn sm" data-go="runs">Back to log</button>',
-    governance: '<button class="btn sm">Export audit</button>'
+    home: '<button class="button button--outline button--sm" data-go="runs">View runs</button>',
+    agents: '<button class="button button--default button--sm" data-go="builder">'+ico("i-plus")+' Create agent</button>',
+    builder: '<button class="button button--outline button--sm">Version history</button><button class="button button--default button--sm" id="deployBtn">Deploy</button>',
+    skills: '<button class="button button--default button--sm">'+ico("i-plus")+' New skill</button>',
+    connectors: '<button class="button button--outline button--sm">Manage scopes</button>',
+    runs: '<button class="button button--outline button--sm">Export</button>',
+    run: '<button class="button button--outline button--sm" data-go="runs">Back to log</button>',
+    governance: '<button class="button button--outline button--sm">Export audit</button>'
   };
   var current = "home";
   function go(id){
     current = id;
     $$(".screen").forEach(function(s){ s.hidden = (s.id !== "s-"+id); });
-    var m = META[id] || META.home;
-    $("#crumb").textContent = m[0];
-    $("#crumbSub").textContent = m[1];
+    $("#crumb").textContent = CRUMB[id] || "Home";
     $("#topActions").innerHTML = ACTIONS[id] || "";
-    var navFor = (id==="builder") ? "agents" : (id==="run") ? "runs" : id;
-    $$("#navlist .nav").forEach(function(b){ b.classList.toggle("on", b.dataset.go === navFor); });
+    var navFor = id === "builder" ? "agents" : id === "run" ? "runs" : id;
+    $$("#navlist .sidebar-menu-button").forEach(function(b){
+      b.setAttribute("data-active", String(b.dataset.go === navFor));
+    });
     window.scrollTo(0,0);
   }
 
   document.addEventListener("click", function(e){
     var g = e.target.closest("[data-go]");
     if(g){ go(g.dataset.go); return; }
-    var o = e.target.closest("[data-open]");
-    if(o){ go(o.dataset.open); return; }
     if(e.target.closest("#deployBtn")){ openDeploy(); return; }
+    if(e.target.closest("#composerSend")){ go("builder"); return; }
     var st = e.target.closest("[data-step]");
     if(st){ var p = $("#pl"+st.dataset.step); p.hidden = !p.hidden; return; }
-    var seed = e.target.closest(".starter");
+    var seed = e.target.closest("[data-seed]");
     if(seed){ $("#askInput").value = seed.dataset.seed; $("#askInput").focus(); return; }
+    var tab = e.target.closest(".tabs-trigger");
+    if(tab){
+      Array.prototype.forEach.call(tab.parentNode.children, function(t){ t.setAttribute("aria-selected","false"); });
+      tab.setAttribute("aria-selected","true");
+    }
   });
-  $("#askBox").querySelector(".send").addEventListener("click", function(){ go("builder"); });
 
-  /* ---------- deploy modal ---------- */
-  var deployState = {ch:["slack","schedule"], env:1};
+  /* ---------- deploy dialog ---------- */
   function openDeploy(){
-    var m = $("#deployModal");
-    m.hidden = false;
-    m.innerHTML =
-      '<div class="scrim" id="scrim"><div class="modal" role="dialog" aria-label="Deploy agent">'+
-      '<div class="mh"><svg width="18" height="18"><use href="#i-up"/></svg><strong>Deploy Overnight Support Digest</strong>'+
-      '<button class="btn sm" id="closeDeploy" style="margin-left:auto">Close</button></div>'+
-      '<div class="mb">'+
-        '<div><div class="eyebrow" style="margin-bottom:8px">Where people reach it</div>'+
-        '<div style="display:grid;gap:8px">'+
-          dOpt("slack","Slack","Mention it in #cx-leads, or let it post on schedule. Approvals happen in the thread.")+
-          dOpt("schedule","Schedule","Weekdays at 09:00 UTC. Skips the holiday calendar you set.")+
-          dOpt("email","Email","digest@agents.acme.com — replies come back as follow-up turns.")+
-          dOpt("api","API","POST /v1/agents/overnight-digest/runs, with the same guardrails.")+
+    var host = $("#dialogHost");
+    host.hidden = false;
+    host.innerHTML =
+      '<div class="dialog-overlay" id="overlay"><div class="dialog-content" role="dialog" aria-label="Deploy agent">'+
+      '<div class="dialog-header"><span class="dialog-title">Deploy Overnight Support Digest</span>'+
+      '<span class="card-description">Channels and region are separate choices. Neither changes the agent.</span></div>'+
+      '<div class="dialog-body">'+
+        '<div class="stack" style="gap:.5rem"><span class="field-label">Where people reach it</span>'+
+          opt(true,"Slack","Mention it in #cx-leads, or let it post on schedule. Approvals happen in the thread.")+
+          opt(true,"Schedule","Weekdays at 09:00 UTC. Skips the holiday calendar you set.")+
+          opt(false,"Email","digest@agents.acme.com — replies come back as follow-up turns.")+
+          opt(false,"API","POST /v1/agents/overnight-digest/runs, with the same guardrails.")+
+        '</div>'+
+        '<div class="stack" style="gap:.5rem"><span class="field-label">Where it runs</span>'+
+        '<div class="toggle-group">'+
+          '<button data-env aria-pressed="false">Horizon cloud</button>'+
+          '<button data-env aria-pressed="true">Your VPC</button>'+
+          '<button data-env aria-pressed="false">Self-hosted</button>'+
+        '</div>'+
+        '<span class="xs muted">Model calls, tool calls and logs all stay in the region you pick.</span></div>'+
+        '<div class="card" style="box-shadow:none;background:var(--muted)"><div class="card-content" style="display:flex;flex-direction:column;gap:.5rem">'+
+          '<span class="field-label">Before it goes live</span>'+
+          line("ok","3 guardrails active, including ask-before-external-post")+
+          line("ok","Tool scopes reviewed — read-only on Zendesk and Snowflake")+
+          line("ok","Budget capped at 400 credits per run, 20,000 per month")+
+          line("warn","Evaluation suite not run yet — 18 saved cases available")+
         '</div></div>'+
-        '<div><div class="eyebrow" style="margin-bottom:8px">Where it runs</div>'+
-        '<div class="ladder" id="ladder">'+
-          '<button class="rung" data-env="0">Horizon cloud</button>'+
-          '<button class="rung on" data-env="1">Your VPC (us-east-1)</button>'+
-          '<button class="rung" data-env="2">Self-hosted</button>'+
-        '</div>'+
-        '<p class="small muted" style="margin-top:8px">Model calls, tool calls and logs all stay in the region you pick. Changing this does not change the agent.</p></div>'+
-        '<div class="card" style="padding:12px;display:flex;flex-direction:column;gap:7px;background:var(--surface-3)">'+
-          '<div class="eyebrow">Before it goes live</div>'+
-          dCheck("3 guardrails active, including ask-before-external-post")+
-          dCheck("Tool scopes reviewed — read-only on Zendesk and Snowflake")+
-          dCheck("Budget capped at 400 credits per run, 20,000 per month")+
-          '<div class="small" style="color:var(--warn);display:flex;gap:7px;align-items:center"><svg width="14" height="14"><use href="#i-clock"/></svg> Evaluation suite not run yet — 18 saved cases available</div>'+
-        '</div>'+
       '</div>'+
-      '<div class="mf"><span class="small muted">Deploys are versioned. Rolling back is one click.</span>'+
-      '<button class="btn sm" id="closeDeploy2" style="margin-left:auto">Cancel</button>'+
-      '<button class="btn sm accent" id="confirmDeploy">Deploy to VPC</button></div>'+
+      '<div class="dialog-footer"><span class="xs muted">Deploys are versioned. Rolling back is one click.</span>'+
+      '<button class="button button--ghost button--sm" data-close style="margin-left:auto">Cancel</button>'+
+      '<button class="button button--default button--sm" id="confirmDeploy">Deploy to VPC</button></div>'+
       '</div></div>';
-    m.addEventListener("click", function(e){
-      if(e.target.id==="scrim" || e.target.closest("#closeDeploy") || e.target.closest("#closeDeploy2")){ closeDeploy(); return; }
+    host.onclick = function(e){
+      if(e.target.id === "overlay" || e.target.closest("[data-close]")){ closeDeploy(); return; }
       var r = e.target.closest("[data-env]");
-      if(r){ m.querySelectorAll(".rung").forEach(function(x){x.classList.remove("on");}); r.classList.add("on"); return; }
-      var c = e.target.closest("[data-ch]");
-      if(c){ c.classList.toggle("on"); return; }
+      if(r){ Array.prototype.forEach.call(r.parentNode.children, function(x){ x.setAttribute("aria-pressed","false"); });
+             r.setAttribute("aria-pressed","true"); return; }
+      var o = e.target.closest(".option");
+      if(o){ o.setAttribute("data-on", o.getAttribute("data-on") === "true" ? "false" : "true"); return; }
       if(e.target.closest("#confirmDeploy")){ closeDeploy(); go("runs"); }
-    });
+    };
   }
-  function dOpt(k,t,d){
-    var on = deployState.ch.indexOf(k) > -1 ? " on" : "";
-    return '<button class="opt'+on+'" data-ch="'+k+'"><span class="box"><svg width="11" height="11"><use href="#i-check"/></svg></span>'+
-      '<span><strong style="font-size:13px">'+t+'</strong><br><span class="small muted">'+d+'</span></span></button>';
+  function opt(on,t,d){
+    return '<button class="option" data-on="'+on+'"><span class="checkbox">'+ico("i-check")+'</span>'+
+      '<span class="stack" style="gap:.1rem"><strong class="sm">'+t+'</strong><span class="xs muted">'+d+'</span></span></button>';
   }
-  function dCheck(t){
-    return '<div class="small" style="color:var(--ok);display:flex;gap:7px;align-items:center"><svg width="14" height="14"><use href="#i-check"/></svg> <span style="color:var(--fg-2)">'+t+'</span></div>';
+  function line(kind,t){
+    var c = kind==="ok" ? "var(--success)" : "var(--warning)";
+    return '<span class="check-line"><span style="color:'+c+';display:flex">'+ico(kind==="ok"?"i-check":"i-clock")+'</span>'+t+'</span>';
   }
-  function closeDeploy(){ var m=$("#deployModal"); m.hidden = true; m.innerHTML=""; }
+  function closeDeploy(){ var h=$("#dialogHost"); h.hidden = true; h.innerHTML = ""; }
 
   /* ---------- guided tour ---------- */
   var TOUR = [
     {stage:"Horizon", title:"An agent platform your IT team can sign off on",
-     body:"Horizon is where someone who does not write code builds an agent, deploys it into the tools their team already uses, and can prove afterwards exactly what it did. Nine stops, about six minutes.",
-     ev:"A working prototype — every screen is clickable.", sel:null, screen:"home"},
-
+     body:"Someone who does not write code builds an agent here, deploys it into the tools their team already uses, and can prove afterwards exactly what it did. Nine stops, about six minutes.",
+     note:"A working prototype — every screen is clickable.", sel:null, screen:"home"},
     {stage:"Stop 1 · Authoring", title:"You describe the job, not the graph",
-     body:"No canvas, no nodes. You type what should happen and Horizon drafts the agent — instructions, tools, guardrails — for you to correct. The drag-a-graph front door is the form factor this category has walked away from.",
-     ev:"Builders who ship weekly do not want to maintain a diagram.",
-     sel:"#askBox", screen:"home"},
-
+     body:"No canvas, no nodes. You type what should happen and Horizon drafts the agent — instructions, tools, guardrails — for you to correct.",
+     note:"Builders who ship weekly do not want to maintain a diagram.", sel:"#composer", screen:"home"},
     {stage:"Stop 2 · Agents", title:"Templates carry the governance, not just the prompt",
      body:"Each template arrives with its skills, its tool scopes and its approval rules already set. A team lead can ship one without filing a ticket with IT, because the rules came with it.",
      sel:"#tplGrid", screen:"agents"},
-
     {stage:"Stop 3 · The builder", title:"One screen, no hidden configuration",
-     body:"Identity, model, connectors, skills, knowledge and guardrails sit on one page above the instructions. Everything that governs the agent is visible while you write what it should do.",
+     body:"Model, connectors, skills, knowledge and guardrails sit above the instructions. Everything that governs the agent is visible while you write what it should do.",
      sel:"#fSkills", screen:"builder"},
-
     {stage:"Stop 4 · Models", title:"Any model, including your own keys",
-     body:"Pick a default and a fallback. Bring your own keys, or route a workload to whatever is cheapest that still passes its evaluations. The bundled platforms cannot offer you this — their business depends on the model being theirs.",
-     sel:"#fModel", screen:"builder"},
-
-    {stage:"Stop 5 · Guardrails", title:"Rules are read before the tool call, against its arguments",
-     body:"\"Ask before posting externally\" does not mean \"ask whenever Slack is used\" — it reads the channel the agent is about to post into. The run pauses, a named human approves from Slack, and it resumes at the same step.",
+     body:"Pick a default and a fallback. Bring your own keys, or route a workload to whatever is cheapest that still passes its evaluations.",
+     note:"A bundled platform cannot offer you this — its business depends on the model being theirs.", sel:"#fModel", screen:"builder"},
+    {stage:"Stop 5 · Guardrails", title:"Rules read the arguments, not the tool name",
+     body:"“Ask before posting externally” does not mean “ask whenever Slack is used” — it reads the channel the agent is about to post into. The run pauses, a named human approves from Slack, and it resumes at the same step.",
      sel:"#fGuard", screen:"builder"},
-
     {stage:"Stop 6 · Deploy", title:"Channels and region are a deployment choice",
-     body:"The same agent reaches people through Slack, email, WhatsApp, a schedule or the API. Where it runs — Horizon's cloud, your VPC, or your own hardware — is a separate switch, and it does not change the agent.",
-     sel:".modal", screen:"builder", open:"deploy"},
-
-    {stage:"Stop 7 · Skills", title:"Agents propose their own improvements; people approve them",
-     body:"After a week of runs, the agent writes up what it kept doing by hand: a new skill, a fix to an existing one, a tool it needed. Each arrives as a diff with the evidence behind it. Nothing changes until a human says yes.",
+     body:"The same agent reaches people through Slack, email, a schedule or the API. Where it runs — managed cloud, your VPC, or your own hardware — is a separate switch.",
+     sel:".dialog-content", screen:"builder", open:"deploy"},
+    {stage:"Stop 7 · Skills", title:"Agents propose their own improvements",
+     body:"After a week of runs, the agent writes up what it kept doing by hand: a new skill, a fix to an existing one, a tool it needed. Each arrives as a diff with its evidence. Nothing changes until a human says yes.",
      sel:"#propCard", screen:"skills"},
-
-    {stage:"Stop 8 · The log", title:"The answer to \"what did it actually do?\"",
-     body:"Every step: the tool, the arguments it sent, what came back, how long it took, what it cost. Open the held step and you can see who approved it and when. It is the first thing anyone asks after an agent surprises them, and the last thing most tools can answer.",
-     sel:"#stepCard", screen:"run"},
-
+    {stage:"Stop 8 · The log", title:"The answer to “what did it actually do?”",
+     body:"Every step: the tool, the arguments it sent, what came back, how long it took, what it cost. Open the held step and you can see who approved it and when.",
+     note:"It is the first thing anyone asks after an agent surprises them.", sel:"#stepCard", screen:"run"},
     {stage:"Stop 9 · Governance", title:"Budgets that pause, rules that block, a trail that exports",
-     body:"Spend is capped per role and per run, and an agent at its cap stops rather than quietly billing more. Approval rules are org-wide. Every grant, approval and publish lands in an audit trail your security team can take away.",
+     body:"Spend is capped per role and per run, and an agent at its cap stops rather than quietly billing more. Every grant, approval and publish lands in an audit trail your security team can take away.",
      sel:"#auditCard", screen:"governance"},
-
     {stage:"End of tour", title:"That is Horizon end to end",
-     body:"Describe it, scope it, test it, deploy it, watch it, govern it. Click anywhere in the prototype to explore on your own — or run the tour again from the button in the corner.",
-     ev:"Prototype. Every number and ticket on screen is illustrative.", sel:null, screen:"home"}
+     body:"Describe it, scope it, test it, deploy it, watch it, govern it. Click anywhere to explore on your own, or run the tour again from the corner.",
+     note:"Prototype. Every number and ticket on screen is illustrative.", sel:null, screen:"home"}
   ];
 
   var ti = 0, touring = false;
@@ -911,18 +1006,15 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
   function renderStep(){
     var s = TOUR[ti];
     if(s.screen && s.screen !== current) go(s.screen);
-    if(s.open === "deploy"){ if($("#deployModal").hidden) openDeploy(); }
-    else { closeDeploy(); }
-
+    if(s.open === "deploy"){ if($("#dialogHost").hidden) openDeploy(); } else { closeDeploy(); }
     $("#tStage").textContent = s.stage;
     $("#tTitle").textContent = s.title;
     $("#tBody").textContent = s.body;
-    var ev = $("#tEv");
-    if(s.ev){ ev.textContent = s.ev; ev.hidden = false; } else { ev.hidden = true; }
+    var n = $("#tNote");
+    if(s.note){ n.textContent = s.note; n.hidden = false; } else { n.hidden = true; }
     $("#tBack").hidden = (ti === 0);
     $("#tNext").textContent = (ti === TOUR.length-1) ? "Finish" : "Next";
-    $("#tPips").innerHTML = TOUR.map(function(_,i){ return '<span class="pip'+(i===ti?" on":"")+'"></span>'; }).join("");
-
+    $("#tPips").innerHTML = TOUR.map(function(_,i){ return '<span class="pip" data-on="'+(i===ti)+'"></span>'; }).join("");
     requestAnimationFrame(function(){ place(s); });
   }
 
@@ -930,10 +1022,8 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
     var spot = $("#spot"), card = $("#tcard");
     var t = s.sel ? document.querySelector(s.sel) : null;
     var vw = window.innerWidth, vh = window.innerHeight;
-
     if(!t){
-      spot.style.opacity = "0";
-      spot.style.width = spot.style.height = "0px";
+      spot.style.opacity = "0"; spot.style.width = spot.style.height = "0px";
       spot.style.left = (vw/2)+"px"; spot.style.top = (vh/2)+"px";
       card.style.left = Math.max(16,(vw - card.offsetWidth)/2)+"px";
       card.style.top = Math.max(16,(vh - card.offsetHeight)/2)+"px";
@@ -941,18 +1031,13 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
     }
     t.scrollIntoView({block:"center", behavior:"auto"});
     requestAnimationFrame(function(){
-      var r = t.getBoundingClientRect();
-      var pad = 8;
+      var r = t.getBoundingClientRect(), pad = 6;
       spot.style.opacity = "1";
-      spot.style.left = (r.left - pad)+"px";
-      spot.style.top = (r.top - pad)+"px";
-      spot.style.width = (r.width + pad*2)+"px";
-      spot.style.height = (r.height + pad*2)+"px";
-
-      var cw = card.offsetWidth, ch = card.offsetHeight, gap = 16;
-      var left, top;
-      if(vw < 760){
-        left = Math.max(16, (vw - cw)/2);
+      spot.style.left = (r.left - pad)+"px"; spot.style.top = (r.top - pad)+"px";
+      spot.style.width = (r.width + pad*2)+"px"; spot.style.height = (r.height + pad*2)+"px";
+      var cw = card.offsetWidth, ch = card.offsetHeight, gap = 16, left, top;
+      if(vw < 820){
+        left = Math.max(16,(vw - cw)/2);
         top = (r.bottom + gap + ch < vh - 16) ? r.bottom + gap : Math.max(16, r.top - gap - ch);
         if(top + ch > vh - 16) top = Math.max(16, vh - ch - 16);
       } else if(r.right + gap + cw < vw - 16){
@@ -963,8 +1048,7 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
         left = Math.max(16, Math.min(r.left, vw - cw - 16));
         top = (r.bottom + gap + ch < vh - 16) ? r.bottom + gap : Math.max(16, r.top - gap - ch);
       }
-      card.style.left = left+"px";
-      card.style.top = top+"px";
+      card.style.left = left+"px"; card.style.top = top+"px";
     });
   }
 
@@ -972,8 +1056,7 @@ pre{margin:0;background:var(--surface-3);border:1px solid var(--line-soft);borde
   $("#tSkip").addEventListener("click", endTour);
   $("#tBack").addEventListener("click", function(){ if(ti>0){ ti--; renderStep(); } });
   $("#tNext").addEventListener("click", function(){
-    if(ti === TOUR.length-1){ endTour(); return; }
-    ti++; renderStep();
+    if(ti === TOUR.length-1){ endTour(); return; } ti++; renderStep();
   });
   document.addEventListener("keydown", function(e){
     if(!touring) return;
