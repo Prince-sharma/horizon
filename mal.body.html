@@ -67,21 +67,25 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;paddin
 .sep{height:1px;background:var(--line);border:0}
 
 /* ---------- shell ---------- */
-.app{display:grid;grid-template-columns:15rem 17rem minmax(0,1fr);height:100%;min-height:100%}
+.app{display:grid;grid-template-columns:3.6rem 17.5rem minmax(0,1fr);height:100%;min-height:100%}
 
-/* banking rail (static) */
-.rail{background:var(--rail);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:.15rem;overflow:auto;
-  padding-left:max(.7rem,env(safe-area-inset-left,0px));padding-right:.7rem;padding-block:.9rem}
-.brand{display:flex;align-items:center;gap:.55rem;padding:.2rem .4rem 1rem}
-.brand .word{font-size:19px;font-weight:600;letter-spacing:-.02em}
-.toggle{display:flex;gap:.2rem;background:var(--raise);border:1px solid var(--line);border-radius:999px;padding:.2rem;margin-bottom:1rem}
-.toggle button{flex:1;display:flex;align-items:center;justify-content:center;gap:.35rem;height:1.9rem;border-radius:999px;font-size:12.5px;font-weight:500;color:var(--fg-2)}
-.toggle button[aria-pressed="true"]{background:#111a16;color:var(--fg);border:1px solid var(--line)}
-.rail-label{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--fg-3);padding:.9rem .5rem .3rem;font-weight:600}
-.rail-item{display:flex;align-items:center;gap:.6rem;height:2rem;padding:0 .5rem;border-radius:9px;font-size:13px;color:var(--fg-2);width:100%}
+/* banking rail — collapsed to icons so the agents workspace carries the screen */
+.rail{background:var(--rail);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:.2rem;overflow:auto;
+  padding-left:max(.35rem,env(safe-area-inset-left,0px));padding-right:.35rem;padding-block:.8rem;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.brand{display:grid;place-items:center;padding:.1rem 0 .7rem}
+.brand .word{display:none}
+.toggle{display:flex;flex-direction:column;gap:.2rem;background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:.2rem;margin-bottom:.7rem}
+.toggle button{width:2rem;height:2rem;display:grid;place-items:center;border-radius:9px;color:var(--fg-3)}
+.toggle button span{display:none}
+.toggle button[aria-pressed="true"]{background:#122019;color:var(--fg)}
+.rail-label{width:1.2rem;height:1px;background:var(--line);margin:.5rem 0;font-size:0;overflow:hidden}
+.rail-item{display:grid;place-items:center;width:2rem;height:2rem;border-radius:9px;color:var(--fg-3)}
 .rail-item:hover{background:var(--raise);color:var(--fg)}
-.rail-item svg{width:15px;height:15px;flex:none;opacity:.8}
-.rail-user{margin-top:auto;display:flex;align-items:center;gap:.55rem;padding:.5rem .4rem 0;border-top:1px solid var(--line);padding-top:.8rem}
+.rail-item svg{width:15px;height:15px;flex:none}
+.rail-item .lbl{display:none}
+.rail-user{margin-top:auto;padding-top:.7rem}
+.rail-user .stack{display:none}
 .ava{width:1.9rem;height:1.9rem;border-radius:50%;background:var(--mal-dim);color:var(--mal);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
 
 /* rooms column */
@@ -215,10 +219,7 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
 
 @media (max-width:1280px){ .drawer{width:17rem} }
 @media (max-width:1080px){
-  .app{grid-template-columns:3.4rem 15rem minmax(0,1fr)}
-  .rail .lbl,.rail-label,.rail .word,.rail-user .stack,.toggle button span{display:none}
-  .rail-item{justify-content:center}
-  .toggle{flex-direction:column}
+  .app{grid-template-columns:3.6rem 15rem minmax(0,1fr)}
   .drawer{display:none!important}
 }
 @media (max-width:860px){
@@ -306,19 +307,22 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
     <div class="col-head">
       <svg width="24" height="24"><use href="#mal-mark"/></svg>
       <div class="stack" style="gap:0">
-        <span style="font-weight:600;font-size:13.5px">Your rooms</span>
-        <span class="xs muted">Specialists for your business</span>
+        <span style="font-weight:600;font-size:13.5px">Mal Business</span>
+        <span class="xs muted">Agents</span>
       </div>
     </div>
     <div class="col-sec">
-      <div class="search"><svg><use href="#i-search"/></svg> Find a room…</div>
-      <div class="tabs"><button aria-selected="true">All rooms</button><button aria-selected="false">Unread</button></div>
+      <div class="search"><svg><use href="#i-search"/></svg> Search agents and runs…</div>
     </div>
-    <div class="col-sec" id="roomList" style="display:flex;flex-direction:column;gap:1px"></div>
+    <div class="col-sec" id="wsList" style="display:flex;flex-direction:column;gap:1px;margin-top:.5rem"></div>
 
     <div class="col-sec" style="margin-top:.9rem">
-      <div class="eyebrow" style="padding:.3rem .6rem .35rem">Workspace</div>
-      <div id="wsList" style="display:flex;flex-direction:column;gap:1px"></div>
+      <div class="row" style="padding:.3rem .6rem .35rem">
+        <span class="eyebrow">Your rooms</span>
+        <span class="xs dim" style="margin-left:auto">10</span>
+      </div>
+      <div class="tabs" style="margin-top:0"><button aria-selected="true">All rooms</button><button aria-selected="false">Unread</button></div>
+      <div id="roomList" style="display:flex;flex-direction:column;gap:1px"></div>
     </div>
 
     <div class="col-sec" style="margin-top:.9rem">
@@ -356,6 +360,72 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
     </header>
 
     <div class="stage-body">
+      <!-- HOME -->
+      <section class="screen scrollpane" id="s-home" hidden>
+        <div class="pane-wrap wide">
+          <div class="stack" style="gap:.25rem">
+            <h2 style="font-size:20px">Good afternoon, Prince</h2>
+            <span class="sm muted">Seven rooms worked while you were out. Three things need your signature, and nothing moved outside its mandate.</span>
+          </div>
+
+          <!-- needs you -->
+          <div class="card" id="needsCard" style="border-color:rgba(232,185,98,.3)">
+            <div class="sect" style="border-color:rgba(232,185,98,.2)">
+              <svg width="15" height="15" style="color:var(--amber)"><use href="#i-shield"/></svg>
+              <strong style="font-size:13px">Needs you</strong>
+              <span class="xs dim">Agents stopped here on purpose</span>
+              <span class="chip chip--amber" style="margin-left:auto"><span class="dot"></span>3 waiting</span>
+            </div>
+            <div class="list" id="needsRows"></div>
+          </div>
+
+          <!-- week at a glance -->
+          <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
+            <div class="card" style="padding:.85rem"><div class="xs muted">Money moved</div>
+              <div class="mono" style="font-size:22px;font-weight:600">AED 2.41M</div><div class="xs dim">96 payments, 0 errors</div>
+              <svg viewBox="0 0 100 26" preserveAspectRatio="none" style="width:100%;height:1.6rem;margin-top:.3rem"><polyline points="0,20 16,17 32,18 48,11 64,13 80,6 100,4" fill="none" stroke="var(--mal)" stroke-width="2"/></svg></div>
+            <div class="card" style="padding:.85rem"><div class="xs muted">Hours given back</div>
+              <div class="mono" style="font-size:22px;font-weight:600">47</div><div class="xs dim">this week, across 7 rooms</div>
+              <svg viewBox="0 0 100 26" preserveAspectRatio="none" style="width:100%;height:1.6rem;margin-top:.3rem"><polyline points="0,22 16,20 32,15 48,16 64,10 80,8 100,3" fill="none" stroke="var(--mal)" stroke-width="2"/></svg></div>
+            <div class="card" style="padding:.85rem"><div class="xs muted">Held for a human</div>
+              <div class="mono" style="font-size:22px;font-weight:600;color:var(--amber)">14</div><div class="xs dim">all cleared within the hour</div></div>
+            <div class="card" style="padding:.85rem"><div class="xs muted">Stopped by mandate</div>
+              <div class="mono" style="font-size:22px;font-weight:600;color:var(--red)">2</div><div class="xs dim">FX above limit, new payee</div></div>
+          </div>
+
+          <!-- agents at a glance -->
+          <div class="card" id="homeAgents">
+            <div class="sect"><strong style="font-size:13px">Your agents today</strong>
+              <button class="btn btn--ghost" style="margin-left:auto" data-go="specialists">See all <svg><use href="#i-chev"/></svg></button></div>
+            <div class="list" id="homeAgentRows"></div>
+          </div>
+
+          <!-- build something -->
+          <div class="card" id="homeBuild">
+            <div class="sect"><strong style="font-size:13px">Put another job on an agent</strong>
+              <span class="xs dim" style="margin-left:auto">Describe it, or start from a mandate we have written</span></div>
+            <div style="padding:.85rem;display:flex;flex-direction:column;gap:.7rem">
+              <div class="card" style="background:var(--stage);padding:.7rem .8rem;display:flex;flex-direction:column;gap:.55rem">
+                <input id="buildAsk" class="xs" style="width:100%;border:0;background:none;color:inherit;font-size:13.5px;outline:none"
+                  placeholder="e.g. Chase any invoice that goes 15 days overdue, but never offer a discount…">
+                <div class="row">
+                  <span class="chip">Mandate drafted first</span><span class="chip">You sign before it runs</span>
+                  <button class="btn btn--mal" style="margin-left:auto" data-go="builder">Draft the agent</button>
+                </div>
+              </div>
+              <div class="grid" id="homeTpl" style="grid-template-columns:repeat(auto-fit,minmax(13rem,1fr))"></div>
+            </div>
+          </div>
+
+          <!-- proposals -->
+          <div class="card">
+            <div class="sect"><strong style="font-size:13px">Your agents proposed three changes</strong>
+              <button class="btn btn--ghost" style="margin-left:auto" data-go="playbooks">Review <svg><use href="#i-chev"/></svg></button></div>
+            <div class="list" id="homePropRows"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- ROOM / CHAT -->
       <section class="screen scrollpane" id="s-room">
         <div class="pane-wrap">
@@ -662,11 +732,25 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
     {n:"Support", i:"i-support", d:"A human when you want one", sub:"Hands over with the full thread"}
   ];
   var WORKSPACE = [
-    {n:"Specialists", i:"i-grid", go:"specialists"},
+    {n:"Home", i:"i-home", go:"home"},
+    {n:"Agents", i:"i-grid", go:"specialists", tag:"10"},
+    {n:"Skills", i:"i-book", go:"playbooks", tag:"3", amber:true},
+    {n:"Connections", i:"i-plug", go:"connections"},
     {n:"Activity", i:"i-pulse", go:"activity"},
-    {n:"Controls", i:"i-shield", go:"controls"},
-    {n:"Playbooks", i:"i-book", go:"playbooks"},
-    {n:"Connections", i:"i-plug", go:"connections"}
+    {n:"Controls", i:"i-shield", go:"controls"}
+  ];
+  var NEEDS = [
+    {r:"Payments", t:"Supplier run — 14 payees", amt:"AED 196,400", why:"1 payee changed IBAN 3 days ago", age:"4 min", act:"Review run", go:"room"},
+    {r:"Payroll", t:"October run — 31 staff", amt:"AED 388,000", why:"Two salary changes since September", age:"5 hr", act:"Review changes", go:"activity"},
+    {r:"FX", t:"Convert USD → AED", amt:"AED 310,000", why:"Above this room's AED 200,000 limit", age:"3 hr", act:"Raise once", go:"controls", blocked:true}
+  ];
+  var TODAY = [
+    {n:"Treasury", i:"i-chart", did:"Swept AED 120,000 to cover payroll", c:"18 actions", st:"ok"},
+    {n:"Payments", i:"i-send", did:"Built Friday's run, holding for your signature", c:"6 actions", st:"held"},
+    {n:"Collections", i:"i-tx", did:"Chased 9 invoices, booked AED 74,500 that arrived", c:"23 actions", st:"ok"},
+    {n:"Cards & Spend", i:"i-card", did:"Recovered 9 receipts, 2 still missing", c:"11 actions", st:"ok"},
+    {n:"Taxes & VAT", i:"i-pct", did:"Filed nothing — 3 evidence items still open", c:"4 actions", st:"idle"},
+    {n:"FX", i:"i-globe", did:"One conversion blocked above limit", c:"2 actions", st:"blocked"}
   ];
   var SPECS = [
     {n:"Treasury", i:"i-chart", d:"Watches the balance against your floor and tells you before it is a problem.",
@@ -775,7 +859,29 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
   }).join("");
 
   $("#wsList").innerHTML = WORKSPACE.map(function(w){
-    return '<button class="room" data-go="'+w.go+'"><span class="rico">'+ico(w.i)+'</span><span class="grow">'+w.n+'</span></button>';
+    return '<button class="room" data-go="'+w.go+'"><span class="rico">'+ico(w.i)+'</span><span class="grow">'+w.n+'</span>'+
+      '<span class="tail">'+(w.tag?'<span class="chip '+(w.amber?'chip--amber':'')+'" style="padding:.05rem .4rem">'+w.tag+'</span>':'')+'</span></button>';
+  }).join("");
+
+  $("#needsRows").innerHTML = NEEDS.map(function(n){
+    return '<div class="item"><span class="ico" style="background:'+(n.blocked?'var(--red-dim);color:var(--red)':'var(--amber-dim);color:var(--amber)')+'">'+
+      ico(n.blocked?"i-x":"i-clock")+'</span>'+
+      '<span class="stack" style="gap:.1rem"><span class="sm" style="font-weight:600">'+n.t+' · <span class="mono">'+n.amt+'</span></span>'+
+      '<span class="xs muted">'+n.why+'</span>'+
+      '<span class="xs dim">'+n.r+' room · waiting '+n.age+'</span></span>'+
+      '<span class="tail"><button class="btn" data-go="'+n.go+'">'+n.act+'</button>'+
+      (n.blocked?'':'<button class="btn btn--mal">Approve</button>')+'</span></div>';
+  }).join("");
+
+  $("#homeAgentRows").innerHTML = TODAY.map(function(a){
+    var chip = a.st === "held" ? '<span class="chip chip--amber"><span class="dot"></span>Holding</span>'
+             : a.st === "blocked" ? '<span class="chip chip--red"><span class="dot"></span>Blocked</span>'
+             : a.st === "idle" ? '<span class="chip"><span class="dot"></span>Waiting on you</span>'
+             : '<span class="chip chip--mal"><span class="dot"></span>Running</span>';
+    return '<button class="item" data-go="specialists"><span class="ico" style="background:var(--mal-dim);color:var(--mal)">'+ico(a.i)+'</span>'+
+      '<span class="stack" style="gap:.1rem"><span class="sm" style="font-weight:600">'+a.n+'</span>'+
+      '<span class="xs muted">'+a.did+'</span></span>'+
+      '<span class="tail"><span class="xs dim mono">'+a.c+'</span>'+chip+'</span></button>';
   }).join("");
 
   $("#specGrid").innerHTML = SPECS.map(function(s){
@@ -789,10 +895,12 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
         '<span class="xs"><span class="dim">Limit · </span>'+s.lim+'</span></span></button>';
   }).join("");
 
-  $("#tplGrid").innerHTML = TEMPLATES.map(function(t){
+  var tplHtml = TEMPLATES.map(function(t){
     return '<button class="spec" data-go="builder"><span class="row"><span class="add" style="width:1.4rem;height:1.4rem">'+ico("i-plus")+'</span>'+
       '<strong style="font-size:13px">'+t.n+'</strong></span><span class="xs muted">'+t.d+'</span></button>';
   }).join("");
+  $("#tplGrid").innerHTML = tplHtml;
+  $("#homeTpl").innerHTML = tplHtml;
 
   $("#actList").innerHTML = ACTS.map(function(a){
     var chip = a.st === "held" ? '<span class="chip chip--amber"><span class="dot"></span>Held for you</span>'
@@ -837,6 +945,12 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
       '<span class="xs muted">'+p.d+'</span><span class="xs dim">from '+p.r+'</span></span>'+
       '<span class="tail"><button class="btn btn--ghost">Decline</button><button class="btn">Review</button></span></div>';
   }).join("");
+  $("#homePropRows").innerHTML = PROPS.map(function(p){
+    return '<button class="item" data-go="playbooks"><span class="ico" style="background:var(--mal-dim);color:var(--mal)">'+ico("i-book")+'</span>'+
+      '<span class="stack" style="gap:.1rem"><span class="sm" style="font-weight:600">'+p.n+'</span>'+
+      '<span class="xs muted">'+p.k+' · from '+p.r+'</span></span>'+
+      '<span class="tail"><span class="chip">Review</span></span></button>';
+  }).join("");
 
   $("#pbRows").innerHTML = PLAYBOOKS.map(function(p){
     return '<button class="item"><span class="ico">'+ico("i-book")+'</span>'+
@@ -858,24 +972,26 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
 
   /* ---------- navigation ---------- */
   var META = {
-    room:        ["General","Workspace","Your everyday assistant"],
-    specialists: ["Specialists","Workspace","Rooms with a mandate, not just a prompt"],
-    builder:     ["Collections","Specialists","Writing the mandate"],
+    home:        ["Home","Agents","Everything your agents did, and what still needs you"],
+    room:        ["General","Agents","Your everyday assistant"],
+    specialists: ["Agents","Workspace","Rooms with a mandate, not just a prompt"],
+    builder:     ["Collections","Agents","Writing the mandate"],
     activity:    ["Activity","Workspace","What your agents did, and what it moved"],
     controls:    ["Controls","Workspace","Limits, holds and the audit trail"],
-    playbooks:   ["Playbooks","Workspace","How your business does a thing"],
+    playbooks:   ["Skills","Workspace","How your business does a thing"],
     connections: ["Connections","Workspace","What each room can reach"]
   };
   var ACTIONS = {
+    home:        '<button class="btn" data-go="activity">Activity</button><button class="btn btn--mal" data-go="builder"><svg><use href="#i-plus"/></svg> New agent</button>',
     room:        '<button class="btn btn--ghost btn--icon" aria-label="New"><svg><use href="#i-plus"/></svg></button>',
-    specialists: '<button class="btn btn--mal" data-go="builder"><svg><use href="#i-plus"/></svg> New specialist</button>',
+    specialists: '<button class="btn btn--mal" data-go="builder"><svg><use href="#i-plus"/></svg> New agent</button>',
     builder:     '<button class="btn">Version history</button>',
     activity:    '<button class="btn">Export</button>',
     controls:    '<button class="btn">Export for audit</button>',
-    playbooks:   '<button class="btn btn--mal"><svg><use href="#i-plus"/></svg> New playbook</button>',
+    playbooks:   '<button class="btn btn--mal"><svg><use href="#i-plus"/></svg> New skill</button>',
     connections: '<button class="btn">Review scopes</button>'
   };
-  var current = "room";
+  var current = "home";
   function go(id){
     current = id;
     $$(".screen").forEach(function(s){ s.hidden = (s.id !== "s-"+id); });
@@ -924,50 +1040,62 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
   var TOUR = [
     {stage:"Mal · Agents", title:"What changes when the agent sits inside the bank",
      body:"Every other agent platform asks for a connector to reach your money. Mal already is the money. That removes the integration problem and replaces it with a harder, better one: what is this agent allowed to do with it.",
-     note:"A design concept for the Agents tab. Nothing here is live.", sel:null, screen:"room"},
+     note:"A design concept for the Agents tab. Nothing here is live.", sel:null, screen:"home"},
 
-    {stage:"Stop 1 · Rooms", title:"A room is a specialist, not a chat window",
-     body:"Treasury watches the balance. Payments builds runs. Collections chases. Each one keeps its own history, its own playbooks and its own limits, so “what can this thing do” has a short answer you can read.",
-     sel:"#roomList", screen:"room"},
+    {stage:"Stop 1 · Home", title:"The first thing you see is what stopped",
+     body:"Not a chat box. Three agents did their work overnight and then held, each showing the amount, the reason it stopped, and how long it has been waiting. The queue is the home screen because clearing it is the job.",
+     sel:"#needsCard", screen:"home"},
 
-    {stage:"Stop 2 · The work", title:"It answers with your actual position",
+    {stage:"Stop 2 · Your agents", title:"Each one reports what it did today",
+     body:"Treasury swept to cover payroll. Collections booked AED 74,500 that arrived. Taxes filed nothing and says why. You can read the whole estate in six lines without opening a single room.",
+     sel:"#homeAgents", screen:"home"},
+
+    {stage:"Stop 3 · Hiring", title:"Describe the job; the mandate comes first",
+     body:"A business puts a new job on an agent from here. You type it in plain language, and Mal drafts the mandate before the instructions — because in a bank the limits are the design, not the settings page.",
+     sel:"#homeBuild", screen:"home"},
+
+    {stage:"Stop 4 · Rooms", title:"A room is a specialist, not a chat window",
+     body:"Treasury watches the balance. Payments builds runs. Collections chases. Each keeps its own history, its own skills and its own limits, so “what can this thing do” has a short answer you can read.",
+     sel:"#roomList", screen:"home"},
+
+    {stage:"Stop 5 · The work", title:"It answers with your actual position",
      body:"No connector, no sync, no overnight export. The room reads the ledger as it stands and gives you the number plus what is already committed against it.",
      sel:".me", screen:"room"},
 
-    {stage:"Stop 3 · The approval", title:"This card is the whole product",
+    {stage:"Stop 6 · The approval", title:"This card is the whole product",
      body:"The agent did the work and then stopped. You see the payees, the total, the largest single payment, the fees, and the one thing that looks wrong — a supplier whose IBAN changed three days ago. Approving is one click; so is approving everything except that supplier.",
      note:"An agent that cannot be stopped at exactly this moment has no business near a payment rail.",
      sel:"#approvalCard", screen:"room"},
 
-    {stage:"Stop 4 · Artifacts", title:"Numbers stay beside the conversation",
+    {stage:"Stop 7 · Artifacts", title:"Numbers stay beside the conversation",
      body:"Charts, tables and checklists the room produced live in the drawer, so you can keep talking while looking at the cash curve rather than scrolling back for it.",
      sel:"#drawer", screen:"room", open:"drawer"},
 
-    {stage:"Stop 5 · Specialists", title:"Every room publishes its mandate",
+    {stage:"Stop 8 · Agents", title:"Every agent publishes its mandate",
      body:"Not a description — a mandate. What it may do, and what it may never do, in the same two lines on every card. Someone who has never opened this product can audit it from this page.",
      sel:"#specGrid", screen:"specialists"},
 
-    {stage:"Stop 6 · The mandate", title:"Writing an agent means writing its limits",
+    {stage:"Stop 9 · The mandate", title:"Writing an agent means writing its limits",
      body:"The builder leads with Can see, May do, Never, Limits and Approval — before a word of instructions. The prompt describes behaviour; the mandate is enforced by the ledger, so a jailbreak in the chat changes nothing about what can actually move.",
      note:"This is the one thing a general agent platform cannot copy: it does not own the rail.",
      sel:"#mandateCard", screen:"builder"},
 
-    {stage:"Stop 7 · Activity", title:"The run log and the statement are one record",
+    {stage:"Stop 10 · Activity", title:"The run log and the statement are one record",
      body:"Every step shows what was sent, what came back, and the ledger reference it produced. The IBAN check is a step. The limit check is a step. The approval is a step, with the name of whoever signed and the minute they did it.",
      sel:"#traceCard", screen:"activity"},
 
-    {stage:"Stop 8 · Controls", title:"One page for your finance lead and your auditor",
+    {stage:"Stop 11 · Controls", title:"One page for your finance lead and your auditor",
      body:"Per-room limits per payment and per day, what is always held, what is never allowed at any approval level, and the trail underneath. An agent cannot raise its own limit — that line is in the Never list, and it is the reason the rest can be trusted.",
      sel:"#limitsCard", screen:"controls"},
 
-    {stage:"Stop 9 · Playbooks", title:"The business teaches its own agents",
-     body:"After a few weeks the rooms notice what you keep doing by hand — calling a supplier before paying a changed IBAN, say — and propose it as a playbook, with the evidence. You approve it or you do not.",
+    {stage:"Stop 12 · Skills", title:"The business teaches its own agents",
+     body:"After a few weeks the rooms notice what you keep doing by hand — calling a supplier before paying a changed IBAN, say — and propose it as a skill, with the evidence. You approve it or you do not.",
      sel:"#proposeCard", screen:"playbooks"},
 
     {stage:"End", title:"The pitch in one line",
      body:"Other platforms are building agents that ask a bank for permission. Mal can build agents that hold the permission. Click anywhere to explore, or run the tour again from the corner.",
      note:"Concept prototype. Every figure, supplier and transaction on screen is invented.",
-     sel:null, screen:"room"}
+     sel:null, screen:"home"}
   ];
 
   var ti = 0, touring = false;
@@ -1037,6 +1165,6 @@ pre{margin:0;background:var(--stage);border:1px solid var(--line);border-radius:
   });
   window.addEventListener("resize", function(){ if(touring) place(TOUR[ti]); });
 
-  go("room");
+  go("home");
 })();
 </script>
